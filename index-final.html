@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adrience | James Adrian Fernandez</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ===================== DESIGN TOKENS ===================== */
+:root{
+  --blue:#1a24c0; --deep:#0a14a0; --gold:#ffb000; --ink:#111; --paper:#fff;
+  --soft:#f8f8f8; --line:#bbb; --foot:#464646;
+  --display:'Poppins',system-ui,sans-serif; --body:'Poppins',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--blue);background:var(--paper);min-height:100vh;display:flex;flex-direction:column}
+img,video{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.helloWelcome{height:clamp(70px,14vw,1000px);width:auto;margin:0 auto}  /* Hello, welcome! image */
+
+/* ===================== NAVIGATION (sticky) ===================== */
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;
+  background:#fff;padding:.6rem 2rem;border-radius:0 0 28px 0;width:fit-content;max-width:100%;box-shadow:0 4px 14px rgba(0,0,0,.12);
+  border:1px solid transparent;border-top:0;transition:background .35s,box-shadow .35s,backdrop-filter .35s,border-color .35s}
+.logo{height:32px;width:auto;min-width:90px}  /* Adrience logo image */
+nav a{color:var(--blue);text-decoration:none;font-weight:600;font-size:.9rem;padding:.3rem 0;border-bottom:3px solid transparent;transition:.25s}
+nav a:hover{color:var(--gold)}
+nav a.active{border-color:var(--gold)}
+/* GLASS NAV: the class .scrolled is added by JS once the page is scrolled */
+nav.scrolled{background:rgba(255,255,255,.42);-webkit-backdrop-filter:blur(14px) saturate(170%);backdrop-filter:blur(14px) saturate(170%);
+  border-color:rgba(255,255,255,.65);box-shadow:0 8px 28px rgba(10,20,160,.22)}
+
+/* ===================== SHARED ===================== */
+main{flex:1}
+.page{display:none}.page.active{display:block}
+.banner{background:linear-gradient(#1a24c0,#000f8c);color:#fff;text-align:center;padding:3.5rem 1rem;margin-top:-52px;padding-top:6rem}
+.banner h1 img{height:clamp(70px,14vw,130px);width:auto;margin:0 auto}  /* page title images */
+.title-img{height:clamp(50px,8vw,80px);width:auto;margin:0 auto}  /* section title images */
+.wrap{max-width:1000px;margin:0 auto;padding:2rem 1.2rem}
+.intro{text-align:center;font-weight:500;font-size:.9rem;line-height:1.7;max-width:820px;margin:0 auto 2rem}
+h2.gold{font-family:var(--body);font-weight:800;color:var(--gold);text-align:center;font-size:2rem;margin:1rem 0}
+.btn{background:var(--gold);color:#fff;font-weight:700;padding:.6rem 1.6rem;border-radius:8px;font-size:.85rem;transition:.25s;text-decoration:none;display:inline-block}
+.btn:hover{background:var(--blue);transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.2)}
+.btn.dark{background:#444}.btn.dark:hover{background:var(--blue)}
+.btn.sm{padding:.3rem .8rem;font-size:.75rem}
+[hidden]{display:none!important}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1rem;transition:.25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(26,36,192,.18)}
+.addbox:hover{transform:none;box-shadow:none}
+footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
+.contacts{display:flex;justify-content:space-around;flex-wrap:wrap;gap:1rem;font-weight:700;font-size:.9rem;padding-bottom:2rem;border-bottom:1px solid rgba(255,255,255,.2);max-width:1000px;margin:0 auto}
+.contacts a{color:#fff;text-decoration:none;transition:.25s}.contacts a:hover{color:var(--gold)}
+/* APPOINTMENTS (inside the footer) */
+.appt{max-width:1000px;margin:2rem auto 0}
+.appt>h2{font-weight:800;color:var(--gold);text-align:center;font-size:1.8rem;margin-bottom:1.5rem}
+.appt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;align-items:start}
+.appt h3{font-weight:700;margin-bottom:.8rem;font-size:1.1rem}
+.appt .card:hover{transform:none;box-shadow:none}
+.done{text-align:center;padding:1.2rem .5rem;color:var(--blue)}
+.done .tick{width:54px;height:54px;border-radius:50%;background:var(--gold);color:#fff;font-size:1.8rem;display:grid;place-items:center;margin:0 auto .8rem}
+.done p{font-size:.85rem;line-height:1.6;margin-bottom:1rem}
+.alist{max-height:520px;overflow:auto;padding-right:.3rem}
+.acard{background:#fff;color:#222;border-radius:12px;padding:.9rem 1rem;margin-bottom:.8rem;font-size:.8rem;line-height:1.6;transition:.25s}
+.acard:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.acard .ah{display:flex;justify-content:space-between;align-items:center;gap:.5rem;color:var(--blue);font-size:.95rem;margin-bottom:.3rem}
+.acard b{color:var(--blue)}
+.pill{background:var(--gold);color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .7rem;border-radius:20px}
+.noappt{color:#ccc;font-size:.85rem}
+
+/* ===================== HOME ===================== */
+.hero{background:linear-gradient(#1a24c0,#000f8c);color:#fff;margin-top:-52px;padding:6rem 2rem 0;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:2rem}
+.hero .txt{flex:1 1 340px;max-width:460px;text-align:center;padding-bottom:3rem}
+.hero h1 img{width:100%;max-width:420px;height:auto;margin:0 auto}  /* Hello, welcome! image */
+.hero p{font-size:.85rem;line-height:1.7;margin:1rem 0 1.5rem}
+.hero img{flex:1 1 300px;max-width:380px;min-height:280px;object-fit:cover;object-position:top}
+.overview{scroll-margin-top:90px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3rem;padding:4rem 1.2rem}
+.overview .big{width:min(320px,80%);height:auto}  /* big Adrience image */
+.overview .card{max-width:360px;text-align:center;padding:1.8rem}
+.overview p{font-size:.85rem;line-height:1.6;margin:1rem 0 1.4rem}
+.explore{background:var(--soft);padding:3rem 1rem}
+.cards3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;max-width:900px;margin:2rem auto 0}
+.cards3 h3{text-align:center;font-weight:800;font-size:1.4rem;margin-bottom:.8rem}
+.cards3 img{width:100%;height:130px;object-fit:cover;border-radius:6px;background:#dde}
+.cards3 p{font-size:.78rem;text-align:center;margin:1rem 0;line-height:1.5}
+.cards3 .card{text-align:center}
+
+/* ===================== STORIES ===================== */
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem}
+.story img{width:100%;height:170px;object-fit:cover;border-radius:6px;background:#dde}
+.story h3{font-weight:700;margin:.8rem 0 .1rem;font-size:1.15rem}
+.story .date{color:var(--gold);font-weight:600;font-size:.78rem}
+.story p{color:#111;font-size:.78rem;line-height:1.55;margin:.5rem 0 .8rem;text-align:justify}
+.ctrl{display:flex;gap:.4rem;flex-wrap:wrap}
+.form{display:flex;flex-direction:column;gap:.4rem}
+.form label{font-size:.75rem;font-weight:700;color:#333}
+.form input[type=text],.form input[type=date],.form textarea{font-family:inherit;padding:.5rem;border:2px solid #555;border-radius:3px;font-size:.8rem;width:100%}
+.form textarea{min-height:90px;resize:vertical}
+.drop{border:2px dashed #999;border-radius:10px;min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;color:#888;font-size:1.1rem;cursor:pointer;transition:.25s;overflow:hidden;position:relative}
+.drop:hover,.drop.over{background:#eef0ff;border-color:var(--blue);color:var(--blue)}
+.drop img{width:100%;height:110px;object-fit:cover}
+.empty{grid-column:1/-1;text-align:center;color:#778;font-size:.9rem}
+
+/* ===================== PROJECTS ===================== */
+.tabs{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
+.tab{background:#fff;color:var(--blue);border:2px solid var(--blue);padding:.5rem 1.3rem;border-radius:30px;font-weight:700;font-size:.85rem;transition:.25s}
+.tab:hover{background:var(--gold);border-color:var(--gold);color:#fff}
+.tab.active{background:var(--blue);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.4rem;margin-top:1.5rem}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;margin-top:1.5rem}
+.item{position:relative;transition:.25s}
+.item:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(26,36,192,.2)}
+.item img,.item video{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;background:#c9d0da}
+.vgrid .item video{aspect-ratio:16/9}
+.item h4{font-weight:800;font-size:1.05rem;margin:.5rem 0}
+.addbox{max-width:420px;margin:0 auto}
+.addbox.split{max-width:860px}
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start}
+.split-left{position:sticky;top:76px}
+.split-right{display:flex;flex-direction:column;gap:.45rem}
+.prev-empty{border:2px dashed #c8d0f5;border-radius:12px;padding:2rem 1rem;text-align:center;color:#778;font-size:.8rem;background:#f8f9ff;min-height:240px;display:grid;place-items:center}
+
+/* FULL-SCREEN STORY ARTICLE READER (Image 1) */
+.story-reader{max-width:780px;margin:1.5rem auto 2.5rem}
+.story-reader img.hero-shot{width:100%;max-height:520px;object-fit:contain;background:#f5f6fa;border-radius:16px;margin-bottom:1.5rem;box-shadow:0 8px 24px rgba(10,20,160,.12)}
+.story-reader h1{font-weight:800;font-size:clamp(1.6rem,4vw,2.4rem);color:var(--blue);line-height:1.2;margin-bottom:.3rem}
+.story-reader .date{color:var(--gold);font-weight:700;font-size:1rem;margin-bottom:1.1rem}
+.story-reader .body-txt{color:#111;font-size:.95rem;line-height:1.8;text-align:justify;white-space:pre-line}
+.story-reader .back-row{display:flex;justify-content:flex-end;margin-top:2rem}
+
+/* CLUBS / ORGANIZATIONS HORIZONTAL LAYOUT (Image 3) */
+.org-list{display:flex;flex-direction:column;gap:1rem;margin-top:1rem}
+.org-card{display:flex;gap:1.2rem;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.1rem;transition:.25s}
+.org-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(26,36,192,.15)}
+.org-logo{width:128px;height:128px;flex-shrink:0;border-radius:10px;object-fit:cover;background:#eef2f7;border:1px solid #e0e4ec}
+.org-info{flex:1;min-width:0}
+.org-info h4{font-weight:800;font-size:1.15rem;color:var(--blue);margin:0 0 .35rem}
+.org-meta{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:.5rem}
+.org-pill{background:var(--gold);color:#fff;font-weight:700;font-size:.78rem;padding:.2rem .75rem;border-radius:6px;display:inline-block}
+.org-yr{color:var(--gold);font-weight:700;font-size:.85rem}
+.org-desc{color:#222;font-size:.82rem;line-height:1.55;margin-bottom:.6rem;white-space:pre-line}
+.org-form-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.2rem;margin-top:1.2rem}
+.org-form-grid{display:grid;grid-template-columns:150px 1fr;gap:1.2rem;align-items:start}
+.org-drop{min-height:150px;height:150px;font-size:.9rem;padding:.5rem}
+.org-drop img{height:100%}
+.org-fields{display:flex;flex-direction:column;gap:.55rem}
+.org-row{display:grid;grid-template-columns:175px 1fr;gap:.6rem;align-items:center}
+.org-row label{font-size:.78rem;font-weight:700;color:#111;text-align:right}
+.org-row input,.org-row textarea{font-family:inherit;padding:.45rem .6rem;border:1.5px solid #666;border-radius:4px;font-size:.8rem;width:100%}
+.org-row textarea{min-height:54px;resize:vertical}
+.org-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.7rem;flex-wrap:wrap}
+
+/* MOBILE RESPONSIVE POLISH */
+@media (max-width:720px){
+  nav{gap:1rem;padding:.55rem 1.1rem;border-radius:0 0 20px 0}
+  nav a{font-size:.82rem}
+  .split-grid{grid-template-columns:1fr}
+  .split-left{position:static}
+  .org-card{flex-direction:column;align-items:stretch}
+  .org-logo{width:100%;height:170px}
+  .org-form-grid{grid-template-columns:1fr}
+  .org-drop{height:130px;min-height:130px}
+  .org-row{grid-template-columns:1fr;gap:.2rem}
+  .org-row label{text-align:left}
+  .vgrid{grid-template-columns:1fr}
+}
+
+/* ===================== SHARED ITEM STYLES ===================== */
+p.cap{color:#111;font-size:.78rem;line-height:1.55;margin:.5rem 0;text-align:justify}
+p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}   /* "Read full" collapsed state */
+.more{background:none;color:var(--gold);font-weight:700;font-size:.75rem;padding:0 0 .6rem;transition:.25s}
+.more:hover{color:var(--blue);text-decoration:underline}
+.item .ctrl{margin-top:.6rem}
+.item iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000;display:block}
+.ig-crop{position:relative;width:100%;overflow:hidden;border-radius:10px;background:#000}
+.ig-crop.vid{aspect-ratio:16/10;background:#111}
+.ig-crop.vid iframe{position:absolute;top:calc(-54px + var(--py,0px));left:50%;width:100%;height:calc(100% + 260px);border:0;aspect-ratio:auto;background:#fff;transform:translateX(-50%) scale(var(--sc,1));transform-origin:center 28%}
+.ig-crop.des{aspect-ratio:1/1;background:#f4f5f8}
+.ig-crop.des iframe{position:absolute;top:calc(-54px + var(--py,0px));left:calc(50% + var(--px,0px));transform:translateX(-50%) scale(var(--sc,1));transform-origin:center 38%;width:340px;max-width:none;height:560px;border:0;aspect-ratio:auto;background:#fff}
+.des-media{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:10px;background:#f4f5f8}
+.des-media img{width:100%;height:100%;object-fit:cover;transform:translate(var(--px,0px),var(--py,0px)) scale(var(--sc,1));transform-origin:center center}
+/* Video thumbnail cover + play trigger */
+.vwrap{position:relative;width:100%;aspect-ratio:16/10;overflow:hidden;border-radius:10px;background:#111}
+.vwrap>iframe,.vwrap>video,.vwrap>.ig-crop{width:100%;height:100%;aspect-ratio:auto;border-radius:0}
+.vthumb{position:absolute;inset:0;cursor:pointer;z-index:2;background:#111;display:flex;align-items:center;justify-content:center}
+.vthumb img{width:100%;height:100%;object-fit:cover;aspect-ratio:auto;border-radius:0;transition:transform .3s}
+.vthumb:hover img{transform:scale(1.04)}
+.vthumb .playbtn{position:absolute;width:54px;height:54px;border-radius:50%;background:rgba(255,176,0,.95);color:#fff;display:grid;place-items:center;font-size:1.35rem;box-shadow:0 6px 18px rgba(0,0,0,.45);transition:.25s;padding-left:3px}
+.vthumb:hover .playbtn{background:var(--blue);transform:scale(1.08)}
+.vthumb .vbadge{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.72);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:12px}
+/* Live preview & zoom/pan adjust box in forms */
+.prev-box{border:2px solid var(--blue);border-radius:12px;padding:.75rem;background:#f8f9ff;margin-top:.4rem}
+.prev-head{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.5rem}
+.prev-stage{max-width:300px;margin:0 auto}
+.adj-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .8rem;margin-top:.65rem;background:#fff;padding:.6rem;border-radius:8px;border:1px solid #d5daf5}
+.adj-grid label{display:flex;flex-direction:column;gap:.15rem;font-size:.7rem;color:#333}
+.adj-grid input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer}
+.adj-full{grid-column:1/-1}
+.prev-note{font-size:.7rem;color:#556;margin-top:.45rem;line-height:1.4}
+.item.book img{aspect-ratio:2/3}.item.org img{aspect-ratio:16/10}
+.badge{display:inline-block;background:var(--blue);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .7rem;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+.sub{color:var(--gold);font-weight:700;font-size:.8rem}
+.yr{font-size:.75rem;color:#667;margin-bottom:.3rem}
+.lnk{font-size:.75rem;font-weight:600;color:var(--blue)}
+.vph{aspect-ratio:16/9;background:#c9d0da;border-radius:8px;display:grid;place-items:center;font-size:.8rem;color:#556}
+.form input[type=time],.form input[type=tel]{font-family:inherit;padding:.5rem;border:2px solid #555;border-radius:3px;font-size:.8rem;width:100%}
+.form input[type=file]{font-size:.75rem}.form small{color:#667;font-size:.7rem}
+
+/* ===================== ABOUT ===================== */
+.about{display:flex;flex-wrap:wrap;gap:2rem;align-items:center;justify-content:center}
+.about img{width:240px;height:240px;object-fit:cover;background:#dde}
+.about .t{flex:1 1 320px}
+.about h2{margin-bottom:.8rem}.about h2 img{height:34px;width:auto;max-width:100%}  /* name image */
+.about p{font-size:.88rem;line-height:1.7;text-align:justify;font-weight:500}
+.cred h2{font-weight:800;text-align:center;font-size:1.6rem;margin:2.5rem 0 1rem}
+.credbox{border:1px solid var(--line);border-radius:16px;min-height:300px;padding:1.5rem}
+.credbox .view{white-space:pre-wrap;font-size:.9rem;line-height:1.7}
+.credbox .view.ph{color:#99a}
+.credbox textarea{width:100%;min-height:260px;font-family:inherit;font-size:.9rem;padding:.8rem;border:2px solid var(--blue);border-radius:8px;resize:vertical}
+.right{text-align:right;margin-top:1rem}
+
+/* Toast confirmation */
+#toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--blue);color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.85rem;font-weight:600;transition:.3s;z-index:99}
+#toast.show{transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+
+<body>
+
+<!-- ============ STICKY NAV ============ -->
+<nav>
+  <!-- LOGO: replace PLACE_LINK_HERE with your logo file. Until then the alt text shows. -->
+  <img class="logo" src="logo.png" alt="Adrience">  <!-- ASSET: Adrience (blue) -->
+  <a href="#home" data-page="home">Home</a>
+  <a href="#stories" data-page="stories">Stories</a>
+  <a href="#projects" data-page="projects">Projects</a>
+  <a href="#about" data-page="about">About Me</a>
+</nav>
+
+<main>
+
+<!-- ================= HOME ================= -->
+<section class="page" id="page-home">
+  <div class="hero">
+    <div class="txt">
+      <h1><img src="helloWelcome.png" alt="Hello, welcome!"></h1>  <!-- ASSET: Hello, welcome! -->
+      <p>Welcome to Adrience, the official digital portfolio and creative studio of James Adrian Fernandez. Blending information technology with multimedia production, this platform showcases innovative design, compelling visual storytelling, and purposeful digital solutions. Step inside to explore a curated body of work built where creativity meets technical precision.</p>
+      <a class="btn" href="#home" id="exploreBtn">Explore</a>  <!-- scrolls to the Overview section (see script) -->
+    </div>
+    <img src="portrait.png" alt="James Adrian Fernandez portrait">
+  </div>
+
+  <div class="overview" id="overview">
+    <img class="big" src="logo.png" alt="Adrience">  <!-- ASSET: Adrience (blue) -->
+    <div class="card">
+      <h2 class="gold">Overview</h2>
+      <p>Born from a fusion of Adrian and experience, Adrience represents a commitment to crafting digital spaces and visual media that leave a lasting impression. More than just a portfolio, it is an evolving creative hub designed to bridge the gap between functional technology and expressive artistry—turning bold ideas, technical builds, and visual narratives into cohesive, real-world experiences.</p>
+      <a class="btn" href="#about">Read More</a>
+    </div>
+  </div>
+
+  <div class="explore">
+    <h2 class="gold"><img class="title-img" src="exploreMore.png" alt="Explore More!"></h2>  <!-- ASSET: Explore More! -->
+    <div class="cards3">
+      <div class="card"><h3>Stories</h3><img src="bannerStories.png" alt="Stories preview">
+        <p>Explore behind-the-scenes highlights, leadership milestones, and personal reflections that capture the journey behind the screen.</p><a class="btn" href="#stories">Read More</a></div>
+      <div class="card"><h3>Projects</h3><img src="bannerProjects.png" alt="Projects preview">
+        <p>Browse a curated gallery of graphic designs, video productions, photography, and IT builds crafted from concept to execution.</p><a class="btn" href="#projects">Read More</a></div>
+      <div class="card"><h3>About Me</h3><img src="bannerAbout.png" alt="About me preview">
+        <p>Discover the creator behind Adrience—my background in IT, student leadership, core skills, and ways to connect for collaborations.</p><a class="btn" href="#about">Read More</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STORIES ================= -->
+<section class="page" id="page-stories">
+  <div class="banner"><h1><img src="myStories.png" alt="My Stories"></h1></div>  <!-- ASSET: My Stories -->
+  <div class="wrap">
+    <p class="intro">Behind every finished project, design layout, and technical build lies a deeper story of collaboration, problem-solving, and continuous growth. My Stories is an ongoing editorial space dedicated to documenting the milestones, behind-the-scenes experiences, and leadership journeys that shape my work beyond the screen. From high-energy campus productions and community initiatives to personal reflections on creativity and technology, this archive captures the real-world moments and lessons that fuel every endeavor.</p>
+
+    <!-- The feed is rendered here by renderStories() -->
+    <div class="grid2" id="storyFeed"></div>
+
+    <!-- PUBLISHING TOOL: handled by the "STORIES LOGIC" section in the script -->
+    <div class="card addbox" style="margin-top:2rem">
+      <div class="form">
+        <div class="drop" id="storyDrop" tabindex="0">Add/Drop<br>Image here</div>
+        <input type="file" id="storyFile" accept="image/*" hidden>
+        <label for="sHead">Headline</label><input type="text" id="sHead" placeholder="add Headline">
+        <label for="sDate">Date</label><input type="date" id="sDate">
+        <label for="sPara">Paragraph</label><textarea id="sPara" placeholder="add paragraph"></textarea>
+        <button class="btn dark" id="sPublish">Publish</button>
+        <button class="btn sm" id="sCancel" hidden>Cancel editing</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STORY FULL-SCREEN READER ================= -->
+<section class="page" id="page-story-view">
+  <div class="banner"><h1><img src="myStories.png" alt="My Stories"></h1></div>
+  <div class="wrap">
+    <article class="story-reader" id="storyReader"></article>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section class="page" id="page-projects">
+  <div class="banner"><h1><img src="myProjects.png" alt="My Projects"></h1></div>  <!-- ASSET: My Projects -->
+  <div class="wrap">
+    <p class="intro">Welcome to my creative archive. My Projects brings together a curated collection of visual designs and multimedia productions crafted across campus organizations, academic showcases, and independent creative ventures. Each piece reflects a deliberate balance of strategic storytelling, visual clarity, and technical execution, highlighting my ongoing journey to merge design with purpose.</p>
+
+    <!-- Category tabs -->
+    <div class="tabs" id="projTabs">
+      <button class="tab active" data-cat="designs">Designs</button>
+      <button class="tab" data-cat="videos">Videos</button>
+      <button class="tab" data-cat="research">Research</button>
+      <button class="tab" data-cat="books">Book</button>
+    </div>
+
+    <!-- Panels are generated by buildProjectPanels() so every category shares one manager -->
+    <div id="projPanels"></div>
+  </div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section class="page" id="page-about">
+  <div class="banner"><h1><img src="aboutMe.png" alt="About Me"></h1></div>  <!-- ASSET: About Me -->
+  <div class="wrap">
+    <div class="about">
+      <img src="2X2.png" alt="James Adrian J. Fernandez">
+      <div class="t">
+        <h2><img src="fullName.png" alt="James Adrian J. Fernandez"></h2>  <!-- ASSET: James Adrian J. Fernandez -->
+        <p>I’m James Adrian J. Fernandez, a Bachelor of Science in Information Technology student at Ateneo de Davao University, active student leader, and passionate multimedia creative based in Davao City. Deeply driven by the intersection of technology and visual arts, I specialize in graphic design, video production, and digital storytelling—consistently transforming creative concepts into functional, engaging, and well-executed digital experiences.</p>
+      </div>
+    </div>
+
+    <!-- CREDENTIALS: inline editing handled by "CREDENTIALS LOGIC" in the script -->
+    <div class="cred">
+      <h2>CREDENTIALS</h2>
+      <div class="credbox" id="credBox"></div>
+      <div class="right"><button class="btn" id="credBtn">Edit</button></div>
+    </div>
+
+    <!-- CLUBS / ORGANIZATIONS: built by makeManager() in the script -->
+    <div class="cred">
+      <h2>CLUBS / ORGANIZATIONS</h2>
+      <div id="orgHost"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer id="contact">
+  <div class="contacts">
+    <a href="mailto:jamesadrianfernandez18@gmail.com">jamesadrianfernandez18@gmail.com</a>
+    <span>@jmafnez</span>
+    <a href="tel:09084556368">0908-455-6368</a>
+  </div>
+
+  <!-- APPOINTMENTS: form + list, logic is in section 5 of the script -->
+  <section class="appt">
+    <h2>Set an Appointment</h2>
+    <div class="appt-grid">
+      <div class="card">
+        <div class="form" id="apptForm">
+          <label for="aName">Your name</label><input type="text" id="aName" placeholder="Full name">
+          <label for="aPhone">Contact number</label><input type="tel" id="aPhone" placeholder="09XX-XXX-XXXX">
+          <label for="aDate">Preferred date</label><input type="date" id="aDate">
+          <label for="aTime">Preferred time</label><input type="time" id="aTime">
+          <label for="aReason">Reason / matter</label><textarea id="aReason" placeholder="What would you like to discuss?"></textarea>
+          <button class="btn dark" id="aSubmit">Submit appointment</button>
+        </div>
+        <div class="done" id="apptDone" hidden>
+          <div class="tick">&#10003;</div>
+          <h3>Submission confirmed</h3>
+          <p id="aDoneMsg"></p>
+          <button class="btn" id="aAgain">Set another</button>
+        </div>
+      </div>
+      <div>
+        <h3>Scheduled Appointments</h3>
+        <div class="alist" id="apptList"></div>
+      </div>
+    </div>
+  </section>
+</footer>
+<div id="toast" role="status"></div>
+
+<script>
+/* ==========================================================
+   0. HELPERS: localStorage wrapper, escaping, toast
+   ========================================================== */
+const $ = (s, r = document) => r.querySelector(s);
+const PLACEHOLDER = 'logo.png';           // every media src defaults to this
+
+// Safe load/save. Everything persisted goes through these two functions.
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function save(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); return true; }
+  catch (e) { toast('Storage is full. Delete some items or use smaller images.'); return false; }
+}
+// Escape user text before putting it into HTML (prevents broken markup)
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// Reads an image file and shrinks it (max 800px, JPEG) so localStorage doesn't overflow.
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = reject;
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const k = Math.min(1, 800 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = img.width * k; c.height = img.height * k;
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.75));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+// Wires a drop zone + hidden file input. onPick receives the resized data URL.
+function setupDrop(zone, input, onPick) {
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('keydown', e => { if (e.key === 'Enter') input.click(); });
+  ['dragover', 'dragenter'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('over'); }));
+  const handle = async f => { if (f && f.type.startsWith('image/')) onPick(await readImage(f)); else if (f) toast('Please choose an image file.'); };
+  zone.addEventListener('drop', e => handle(e.dataTransfer.files[0]));
+  input.addEventListener('change', () => handle(input.files[0]));
+}
+function showPreview(zone, src) {
+  zone.innerHTML = src ? `<img src="${src}" alt="Selected image">` : 'Add/Drop<br>Image here';
+}
+
+/* ==========================================================
+   1. NAVIGATION: shows one "page" at a time using the URL hash
+   ========================================================== */
+function route() {
+  const name = (location.hash || '#home').slice(1);
+  const page = ['home', 'stories', 'story-view', 'projects', 'about'].includes(name) ? name : 'home';
+  const navKey = page === 'story-view' ? 'stories' : page;
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.dataset.page === navKey));
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+
+/* ==========================================================
+   2. STORIES LOGIC (add / edit / delete / reorder, saved in localStorage)
+   ========================================================== */
+const STORY_KEY = 'adrience_stories';
+// Starter stories copied from the PDF. Used only the first time the site loads.
+const seedStories = [
+  { t: 'Mapua MCM Cup Season 7', d: '2026-03-01', p: 'Behind the high-energy atmosphere of Mapúa MCM Cup Season 7 was a dedicated team working in sync to bring the tournament to life. From coordinating production logistics to capturing the excitement on stage, the event stood as a testament to teamwork, school spirit, and live-event execution.' },
+  { t: 'Mapua MCM Program fair 2026 - HS Department', d: '2026-04-01', p: 'Welcoming incoming students to the High School Department meant turning our booth into an engaging showcase of innovation and creativity. Representing the ICT strand, our team highlighted student projects and hands-on tech experiences to inspire the next batch of Mapúans.' },
+  { t: 'PASIKATAY 2026', d: '2026-05-01', p: "Working behind the scenes with comms in hand, PASIKATAY 2026 put event coordination and real-time problem-solving to the test. Helping steer the flow of one of the campus's biggest celebrations reinforced the value of calm leadership under pressure." },
+  { t: 'Mapua MCM SHS Graduation Ceremony', d: '2026-05-01', p: 'Standing on stage as the 2026 Class Valedictorian and Batch Speaker marked the culmination of years of dedication, late-night deadlines, and leadership service. Receiving Top 1 honors out of 599 graduates was both a deeply humbling milestone and a proud send-off into the next chapter.' },
+  { t: 'ADDU: AFYOP Dayon 2026', d: '2026-07-01', p: 'Stepping into Ateneo de Davao University through the First Year Onboarding Program (Dayon 2026) opened the door to a vibrant new community. Surrounded by fellow freshmen and student leaders, the event set the tone for my journey in Computer Studies and campus life.' }
+].map(s => ({ id: uid(), img: PLACEHOLDER, ...s }));
+
+let stories = load(STORY_KEY, null) || seedStories;
+let editingId = null;      // id of the story being edited (null = creating new)
+let storyImg = '';         // image currently chosen in the form
+
+const fmtDate = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); };
+
+// Opens a story in the full-screen reader page (Image 1)
+function openStoryReader(id) {
+  const s = stories.find(x => x.id === id);
+  if (!s) { location.hash = '#stories'; return; }
+  $('#storyReader').innerHTML = `
+    <img class="hero-shot" src="${esc(s.img || PLACEHOLDER)}" alt="${esc(s.t)}">
+    <h1>${esc(s.t)}</h1>
+    <div class="date">${esc(fmtDate(s.d))}</div>
+    <div class="body-txt">${esc(s.p)}</div>
+    <div class="back-row"><button class="btn" id="storyBackBtn">Back</button></div>`;
+  $('#storyBackBtn').addEventListener('click', () => { location.hash = '#stories'; });
+  location.hash = '#story-view';
+}
+
+// Draws the whole feed. Called after every change.
+function renderStories() {
+  const feed = $('#storyFeed');
+  if (!stories.length) { feed.innerHTML = '<p class="empty">No stories yet. Publish your first one below.</p>'; return; }
+  feed.innerHTML = stories.map((s, i) => `
+    <article class="card story" data-id="${s.id}">
+      <img src="${esc(s.img || PLACEHOLDER)}" alt="${esc(s.t)}" style="cursor:pointer" data-act="read">
+      <h3>${esc(s.t)}</h3><div class="date">${esc(fmtDate(s.d))}</div>
+      <p class="cap clamp">${esc(s.p)}</p>
+      <button class="more" data-act="read">Read full</button>
+      <div class="ctrl">
+        <button class="btn sm" data-act="edit">Edit</button>
+        <button class="btn sm" data-act="del">Delete</button>
+        <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">▲</button>
+        <button class="btn sm dark" data-act="down" ${i === stories.length - 1 ? 'disabled' : ''} aria-label="Move down">▼</button>
+      </div>
+    </article>`).join('');
+}
+
+function resetStoryForm() {
+  editingId = null; storyImg = '';
+  $('#sHead').value = ''; $('#sDate').value = ''; $('#sPara').value = '';
+  showPreview($('#storyDrop'), ''); $('#sPublish').textContent = 'Publish'; $('#sCancel').hidden = true;
+}
+
+setupDrop($('#storyDrop'), $('#storyFile'), src => { storyImg = src; showPreview($('#storyDrop'), src); });
+
+// PUBLISH (create new) or SAVE CHANGES (when editing)
+$('#sPublish').addEventListener('click', () => {
+  const t = $('#sHead').value.trim(), d = $('#sDate').value, p = $('#sPara').value.trim();
+  if (!t || !p) return toast('Add a headline and a paragraph first.');
+  if (editingId) {
+    const s = stories.find(x => x.id === editingId);
+    Object.assign(s, { t, d, p, img: storyImg || s.img });
+  } else {
+    stories.push({ id: uid(), t, d, p, img: storyImg || PLACEHOLDER });   // no limit on stories
+  }
+  if (save(STORY_KEY, stories)) toast(editingId ? 'Changes saved.' : 'Published.');
+  resetStoryForm(); renderStories();
+});
+$('#sCancel').addEventListener('click', resetStoryForm);
+
+// Edit / Delete / Reorder buttons (one listener for the whole feed)
+$('#storyFeed').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]'); if (!btn) return;
+  const id = btn.closest('.story').dataset.id, i = stories.findIndex(s => s.id === id), act = btn.dataset.act;
+  if (act === 'read') { openStoryReader(id); return; }
+  if (act === 'del') {
+    if (!confirm('Delete this story?')) return;
+    stories.splice(i, 1);
+  } else if (act === 'up' && i > 0) {
+    [stories[i - 1], stories[i]] = [stories[i], stories[i - 1]];       // swap with previous
+  } else if (act === 'down' && i < stories.length - 1) {
+    [stories[i + 1], stories[i]] = [stories[i], stories[i + 1]];       // swap with next
+  } else if (act === 'edit') {
+    // Load the story into the form; Publish becomes "Save changes"
+    const s = stories[i]; editingId = id; storyImg = '';
+    $('#sHead').value = s.t; $('#sDate').value = s.d; $('#sPara').value = s.p;
+    showPreview($('#storyDrop'), s.img === PLACEHOLDER ? '' : s.img);
+    $('#sPublish').textContent = 'Save changes'; $('#sCancel').hidden = false;
+    $('#sHead').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  save(STORY_KEY, stories); renderStories();
+});
+
+/* ==========================================================
+   3. SHARED TOOLS + PROJECTS (Designs, Videos, Research, Book)
+   ========================================================== */
+// >>> Heading images for the Designs and Videos tabs. Change to your file names. <<<
+const TITLE_IMG = { designs: 'designs.png', videos: 'videos.png' };
+
+const safeUrl = u => /^\s*javascript:/i.test(u) ? '#' : esc(u);    // blocks javascript: links
+
+// LONG TEXT: shows 4 lines plus a "Read full" button when the text is long
+function more(text) {
+  const long = (text || '').length > 150;
+  return `<p class="cap ${long ? 'clamp' : ''}">${esc(text)}</p>` + (long ? '<button class="more" data-more>Read full</button>' : '');
+}
+document.addEventListener('click', e => {            // one listener handles every Read full / Show less button
+  const b = e.target.closest('[data-more]'); if (!b) return;
+  const collapsed = b.previousElementSibling.classList.toggle('clamp');
+  b.textContent = collapsed ? 'Read full' : 'Show less';
+});
+
+// INSTAGRAM HELPER: extracts shortcode from /p/, /reel/, /reels/, or /tv/ links
+function igCode(url) {
+  const m = (url || '').match(/instagram\.com\/(?:p|reel|reels|tv)\/([\w-]+)/i);
+  return m ? m[1] : null;
+}
+const ytId = url => { const m = (url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/); return m ? m[1] : null; };
+const adjStyle = x => `--sc:${Number(x.zoom) || 1};--px:${Number(x.panX) || 0}px;--py:${Number(x.panY) || 0}px`;
+
+// DESIGN MEDIA RENDERER: uploaded image, clean cropped Instagram post/reel, or external image URL with zoom/pan framing
+function renderDesignMedia(x) {
+  const st = adjStyle(x);
+  if (x.img) return `<div class="des-media" style="${st}"><img src="${esc(x.img)}" alt="Design"></div>`;
+  if (x.url) {
+    const code = igCode(x.url);
+    if (code) return `<div class="ig-crop des" style="${st}"><iframe src="https://www.instagram.com/p/${code}/embed" scrolling="no" allowfullscreen loading="lazy"></iframe></div>`;
+    return `<div class="des-media" style="${st}"><img src="${safeUrl(x.url)}" alt="Design" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=vph>Preview unavailable — use Open link below</div>'"></div>`;
+  }
+  return '<div class="vph">Upload an image or paste a link to preview</div>';
+}
+
+// VIDEO PLAYER: YouTube / Vimeo / Google Drive / Facebook / clean cropped Instagram links; plays inline on website
+function embed(url, autoplay = false, x = {}) {
+  if (!url) return '<div class="vph">Add a video link to preview</div>';
+  const ap = autoplay ? 1 : 0;
+  let m;
+  if ((m = ytId(url))) return `<iframe src="https://www.youtube.com/embed/${m}?autoplay=${ap}&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if ((m = url.match(/vimeo\.com\/(\d+)/))) return `<iframe src="https://player.vimeo.com/video/${m[1]}?autoplay=${ap}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if ((m = url.match(/drive\.google\.com\/file\/d\/([^/?]+)/))) return `<iframe src="https://drive.google.com/file/d/${m[1]}/preview" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if (/facebook\.com|fb\.watch/.test(url)) return `<iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=${ap}" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>`;
+  if ((m = igCode(url))) return `<div class="ig-crop vid" style="${adjStyle(x)}"><iframe src="https://www.instagram.com/reel/${m}/embed" scrolling="no" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe></div>`;
+  return `<video src="${esc(url)}" controls ${autoplay ? 'autoplay' : ''} preload="metadata"></video>`;
+}
+
+// AUTO THUMBNAIL + CUSTOM COVER FOR VIDEOS
+function getAutoThumb(url) {
+  const y = ytId(url);
+  if (y) return `https://i.ytimg.com/vi/${y}/hqdefault.jpg`;
+  return PLACEHOLDER;
+}
+
+function renderVideoMedia(x, isPreview = false) {
+  if (!x.url) return '<div class="vph">Paste a video link above to preview</div>';
+  // In preview mode or when Instagram embed needs direct click inside iframe, show live player or thumbnail overlay
+  const thumb = x.thumb || getAutoThumb(x.url);
+  const isIg = !!igCode(x.url);
+  if (isPreview) {
+    return `<div class="vwrap">${embed(x.url, false, x)}</div>`;
+  }
+  // If user uploaded a custom thumbnail OR it's YouTube/Vimeo/Drive/FB/MP4, show thumbnail cover that plays inline on click!
+  // For Instagram without custom thumbnail, show the live clean-cropped IG player directly so 1 click plays it right on the site (since IG cross-origin iframe requires clicking inside its own play button)
+  if (!x.thumb && isIg) {
+    return `<div class="vwrap">${embed(x.url, false, x)}</div>`;
+  }
+  const payload = esc(JSON.stringify({ url: x.url, zoom: x.zoom || 1, panY: x.panY || 0 }));
+  return `<div class="vwrap" data-vplay="${payload}">
+    ${embed(x.url, false, x)}
+    <div class="vthumb" role="button" tabindex="0" aria-label="Play video">
+      <img src="${esc(thumb)}" alt="${esc(x.title || 'Video thumbnail')}" onerror="this.src='${PLACEHOLDER}'">
+      <div class="playbtn">&#9654;</div>
+      <span class="vbadge">Click to play</span>
+    </div>
+  </div>`;
+}
+
+// One delegated listener: clicking any video thumbnail swaps it to play inline right on the website
+document.addEventListener('click', e => {
+  const th = e.target.closest('.vthumb'); if (!th) return;
+  const wrap = th.closest('.vwrap');
+  try {
+    const info = JSON.parse(wrap.dataset.vplay);
+    wrap.innerHTML = embed(info.url, true, info);
+  } catch (err) { th.remove(); }
+});
+
+/* ---------- GENERIC MANAGER ----------
+   Builds a feed + add form inside `host` with Add / Edit / Delete / Reorder, saved in localStorage.
+   fields: [{k, type:'image'|'file'|'text'|'textarea', label, ph}]   card(x): HTML of one item   check(item): error text or '' */
+function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'pgrid', preview = null }) {
+  let data = load(key, []), editing = null;
+  const draft = {};                                           // holds picked images/files/adjustments
+  const fieldsHtml = fields.map(f => {
+    const L = `<label>${f.label}</label>`;
+    if (f.type === 'image') return `${L}<div class="drop" data-f="${f.k}" tabindex="0">Add/Drop<br>Image here</div><input type="file" accept="image/*" hidden data-in="${f.k}">`;
+    if (f.type === 'file') return `${L}<input type="file" data-f="${f.k}" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"><small data-fn="${f.k}"></small>`;
+    if (f.type === 'textarea') return `${L}<textarea data-f="${f.k}" placeholder="${f.ph || ''}"></textarea>`;
+    return `${L}<input type="text" data-f="${f.k}" placeholder="${f.ph || ''}">`;
+  }).join('');
+
+  if (preview) {
+    host.innerHTML = `<div class="${grid}"></div><div class="card addbox split" style="margin-top:2rem"><div class="split-grid">
+      <div class="split-left">
+        <div class="prev-empty" data-prevempty>Live Preview will appear here once you upload an image or paste a link.</div>
+        <div class="prev-box" data-prevbox hidden style="margin-top:0">
+          <div class="prev-head"><span>Live Preview (Adjust before publishing)</span><button type="button" class="btn sm" data-resetadj>Reset Zoom</button></div>
+          <div class="prev-stage" data-prevstage></div>
+          <div class="adj-grid">
+            <label class="adj-full">Zoom (<span data-zval>100%</span>)<input type="range" data-adj="zoom" min="0.65" max="1.8" step="0.05" value="1"></label>
+            ${preview.panX !== false ? `<label>Horizontal Position<input type="range" data-adj="panX" min="-120" max="120" step="4" value="0"></label>` : ''}
+            <label ${preview.panX === false ? 'class="adj-full"' : ''}>Vertical Position<input type="range" data-adj="panY" min="-140" max="140" step="4" value="0"></label>
+          </div>
+          ${preview.note ? `<div class="prev-note">${preview.note}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.65rem">
+          <button class="btn dark" data-save>Done & Publish ${noun}</button>
+          <button class="btn sm" data-cancel hidden>Cancel editing</button>
+        </div>
+      </div>
+      <div class="form split-right">${fieldsHtml}</div>
+    </div></div>`;
+  } else {
+    host.innerHTML = `<div class="${grid}"></div><div class="card addbox" style="margin-top:2rem"><div class="form">${fieldsHtml}
+      <button class="btn dark" data-save>Add ${noun}</button><button class="btn sm" data-cancel hidden>Cancel editing</button></div></div>`;
+  }
+
+  const q = sel => host.querySelector(sel), el = k => q(`[data-f="${k}"]`), feed = host.firstElementChild;
+  const saveBtn = q('[data-save]'), cancelBtn = q('[data-cancel]');
+
+  function collectDraft() {
+    const item = { zoom: Number(draft.zoom || 1), panX: Number(draft.panX || 0), panY: Number(draft.panY || 0) };
+    fields.forEach(f => {
+      if (f.type === 'image') item[f.k] = draft[f.k] || '';
+      else if (f.type === 'file') { item[f.k] = draft[f.k] || ''; item[f.k + 'Name'] = draft[f.k + 'Name'] || ''; }
+      else item[f.k] = el(f.k).value.trim();
+    });
+    return item;
+  }
+
+  function updatePreview() {
+    if (!preview) return;
+    const item = collectDraft();
+    const box = q('[data-prevbox]'), emp = q('[data-prevempty]'), stage = q('[data-prevstage]');
+    const show = preview.hasContent(item);
+    box.hidden = !show;
+    if (emp) emp.hidden = show;
+    if (show) stage.innerHTML = preview.render(item);
+  }
+
+  if (preview) {
+    host.querySelectorAll('[data-adj]').forEach(inp => inp.addEventListener('input', () => {
+      draft[inp.dataset.adj] = Number(inp.value);
+      if (inp.dataset.adj === 'zoom') q('[data-zval]').textContent = Math.round(inp.value * 100) + '%';
+      updatePreview();
+    }));
+    q('[data-resetadj]').addEventListener('click', () => {
+      draft.zoom = 1; draft.panX = 0; draft.panY = 0;
+      host.querySelectorAll('[data-adj]').forEach(inp => inp.value = inp.dataset.adj === 'zoom' ? 1 : 0);
+      q('[data-zval]').textContent = '100%';
+      updatePreview();
+    });
+  }
+
+  // wire image drop zones, text inputs, and file pickers
+  fields.forEach(f => {
+    if (f.type === 'image') setupDrop(el(f.k), q(`[data-in="${f.k}"]`), src => { draft[f.k] = src; showPreview(el(f.k), src); updatePreview(); });
+    else if (f.type === 'file') el(f.k).addEventListener('change', e => {
+      const file = e.target.files[0]; if (!file) return;
+      if (file.size > 1.5 * 1024 * 1024) { e.target.value = ''; return toast('File is over 1.5 MB. Please paste a link instead.'); }
+      const fr = new FileReader();
+      fr.onload = () => { draft[f.k] = fr.result; draft[f.k + 'Name'] = file.name; q(`[data-fn="${f.k}"]`).textContent = 'Selected: ' + file.name; };
+      fr.readAsDataURL(file);
+    });
+    else el(f.k).addEventListener('input', updatePreview);
+  });
+
+  function reset() {
+    editing = null; Object.keys(draft).forEach(k => delete draft[k]);
+    fields.forEach(f => {
+      if (f.type === 'image') showPreview(el(f.k), '');
+      else { el(f.k).value = ''; if (f.type === 'file') q(`[data-fn="${f.k}"]`).textContent = ''; }
+    });
+    if (preview) {
+      host.querySelectorAll('[data-adj]').forEach(inp => inp.value = inp.dataset.adj === 'zoom' ? 1 : 0);
+      q('[data-zval]').textContent = '100%';
+      q('[data-prevbox]').hidden = true;
+      if (q('[data-prevempty]')) q('[data-prevempty]').hidden = false;
+    }
+    saveBtn.textContent = (preview ? 'Done & Publish ' : 'Add ') + noun; cancelBtn.hidden = true;
+  }
+
+  function render() {
+    feed.innerHTML = data.length ? data.map((x, i) => `
+      <div class="card item ${cls}" data-id="${x.id}">${card(x)}
+        <div class="ctrl">
+          <button class="btn sm" data-act="edit">Edit</button>
+          <button class="btn sm" data-act="del">Delete</button>
+          <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">&#9650;</button>
+          <button class="btn sm dark" data-act="down" ${i === data.length - 1 ? 'disabled' : ''} aria-label="Move down">&#9660;</button>
+        </div>
+      </div>`).join('') : '<p class="empty">Nothing here yet. Use the form below to add the first one.</p>';
+  }
+
+  // ADD or SAVE CHANGES
+  saveBtn.addEventListener('click', () => {
+    const item = collectDraft();
+    const err = check(item); if (err) return toast(err);
+    if (editing) Object.assign(data.find(x => x.id === editing), item); else data.push({ id: uid(), ...item });   // no limit
+    if (save(key, data)) toast(editing ? 'Changes saved.' : 'Published!');
+    reset(); render();
+  });
+  cancelBtn.addEventListener('click', reset);
+
+  // EDIT / DELETE / REORDER
+  feed.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const id = b.closest('.item').dataset.id, i = data.findIndex(x => x.id === id), act = b.dataset.act;
+    if (act === 'del') { if (!confirm('Delete this item?')) return; data.splice(i, 1); }
+    else if (act === 'up' && i > 0) [data[i - 1], data[i]] = [data[i], data[i - 1]];
+    else if (act === 'down' && i < data.length - 1) [data[i + 1], data[i]] = [data[i], data[i + 1]];
+    else if (act === 'edit') {                                  // load the item into the form
+      reset(); editing = id; const x = data[i];
+      fields.forEach(f => {
+        if (f.type === 'image') { draft[f.k] = x[f.k] || ''; showPreview(el(f.k), x[f.k]); }
+        else if (f.type === 'file') { draft[f.k] = x[f.k] || ''; draft[f.k + 'Name'] = x[f.k + 'Name'] || ''; q(`[data-fn="${f.k}"]`).textContent = x[f.k + 'Name'] ? 'Current file: ' + x[f.k + 'Name'] : ''; }
+        else el(f.k).value = x[f.k] ?? '';
+      });
+      if (preview) {
+        draft.zoom = Number(x.zoom || 1); draft.panX = Number(x.panX || 0); draft.panY = Number(x.panY || 0);
+        host.querySelectorAll('[data-adj]').forEach(inp => inp.value = draft[inp.dataset.adj]);
+        q('[data-zval]').textContent = Math.round(draft.zoom * 100) + '%';
+        updatePreview();
+      }
+      saveBtn.textContent = 'Done & Save changes'; cancelBtn.hidden = false;
+      saveBtn.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+    }
+    save(key, data); render();
+  });
+  render();
+}
+
+/* ---------- PROJECT TABS: each one is a makeManager() with its own fields ---------- */
+const CATS = {
+  designs: { label: 'Designs',
+    intro: 'From student government publicity materials and striking event posters to seasonal campaigns and digital assets, this gallery highlights my hands-on expertise in layout composition, advanced typography, and cohesive visual branding.',
+    cfg: { key: 'adrience_proj_designs', noun: 'design',
+      fields: [{ k: 'img', type: 'image', label: 'Upload Image (optional if using link)' },
+               { k: 'url', type: 'text', label: 'Or Design / Instagram Link', ph: 'Instagram post/reel URL, direct image URL, or design link' },
+               { k: 'cap', type: 'textarea', label: 'Caption', ph: 'Write a caption...' }],
+      preview: {
+        hasContent: i => !!(i.img || i.url),
+        render: i => renderDesignMedia(i),
+        note: 'Use Zoom and Position sliders to frame your design cleanly before clicking Done & Publish.'
+      },
+      check: i => (!i.img && !i.url) ? 'Upload an image or paste a design / Instagram link.' : !i.cap ? 'Add a caption.' : '',
+      card: x => `${renderDesignMedia(x)}${more(x.cap ?? x.title)}${x.url ? `<a class="lnk" href="${safeUrl(x.url)}" target="_blank" rel="noopener">Open original link</a>` : ''}` } },
+  videos: { label: 'Videos',
+    intro: 'A comprehensive collection of produced and edited video projects—featuring vibrant campus event highlights, engaging promotional teasers, and cinematic cuts that bring compelling stories to life through motion, pacing, and sound.',
+    cfg: { key: 'adrience_proj_videos', noun: 'video', grid: 'vgrid',
+      fields: [{ k: 'title', type: 'text', label: 'Title', ph: 'Title' }, { k: 'cap', type: 'textarea', label: 'Caption', ph: 'Write a caption...' },
+               { k: 'url', type: 'text', label: 'Video link', ph: 'YouTube, Instagram Reel/Post, Google Drive, Facebook, or .mp4 link' },
+               { k: 'thumb', type: 'image', label: 'Custom Thumbnail Cover (recommended for Instagram/Drive/FB)' }],
+      preview: {
+        panX: false,
+        hasContent: i => !!i.url,
+        render: i => renderVideoMedia(i, true),
+        note: 'Check how your video plays and adjust Zoom/Vertical framing above. Videos play right inside your website.'
+      },
+      check: i => !i.title ? 'Add a title.' : !i.url ? 'Add a video link.' : '',
+      card: x => `${renderVideoMedia(x, false)}<h4>${esc(x.title)}</h4>${more(x.cap)}${x.url ? `<a class="lnk" href="${safeUrl(x.url)}" target="_blank" rel="noopener">Open original link</a>` : ''}` } },
+  research: { label: 'Research',
+    intro: 'Research papers, studies, and documents. Upload a file (up to 1.5 MB) or paste a link to where the document lives.',
+    cfg: { key: 'adrience_proj_research', noun: 'research', grid: 'grid2',
+      fields: [{ k: 'title', type: 'text', label: 'Title', ph: 'Research title' }, { k: 'desc', type: 'textarea', label: 'Description', ph: 'Short summary (optional)' },
+               { k: 'url', type: 'text', label: 'Link to document', ph: 'Google Drive, PDF, or website link' }, { k: 'file', type: 'file', label: 'Or upload a file' }],
+      check: i => !i.title ? 'Add a title.' : (!i.url && !i.file) ? 'Add a link or upload a file.' : '',
+      card: x => `<span class="badge">Document</span><h4>${esc(x.title)}</h4>${more(x.desc)}<div class="ctrl">` +
+        (x.url ? `<a class="btn sm" href="${safeUrl(x.url)}" target="_blank" rel="noopener">Open link</a>` : '') +
+        (x.file ? `<a class="btn sm" href="${esc(x.file)}" download="${esc(x.fileName || 'document')}">Download file</a>` : '') + '</div>' } },
+  books: { label: 'Book',
+    intro: 'Books I recommend and have read. Add the cover, title, author, and a link where it can be read.',
+    cfg: { key: 'adrience_proj_books', noun: 'book', cls: 'book',
+      fields: [{ k: 'img', type: 'image', label: 'Book cover' }, { k: 'title', type: 'text', label: 'Title', ph: 'Book title' },
+               { k: 'author', type: 'text', label: 'Author', ph: 'Author name' }, { k: 'url', type: 'text', label: 'Link to read', ph: 'https://...' }],
+      check: i => !i.title ? 'Add a book title.' : '',
+      card: x => (x.img ? `<img src="${esc(x.img)}" alt="${esc(x.title)}">` : '') + `<h4>${esc(x.title)}</h4><div class="sub">${x.author ? 'by ' + esc(x.author) : ''}</div>` +
+        (x.url ? `<div class="ctrl"><a class="btn sm" href="${safeUrl(x.url)}" target="_blank" rel="noopener">Read book</a></div>` : '') } }
+};
+
+function buildProjectPanels() {
+  const host = $('#projPanels');
+  Object.entries(CATS).forEach(([k, c], i) => {
+    const p = document.createElement('div');
+    p.className = 'panel' + (i === 0 ? ' active' : ''); p.id = 'panel-' + k;
+    const head = TITLE_IMG[k] ? `<h2 class="gold"><img class="title-img" src="${TITLE_IMG[k]}" alt="${c.label}"></h2>` : `<h2 class="gold">${c.label}</h2>`;
+    p.innerHTML = head + `<p class="intro">${c.intro}</p><div class="mgr"></div>`;
+    host.appendChild(p);
+    makeManager({ host: p.querySelector('.mgr'), ...c.cfg });
+  });
+}
+
+// Tab switching
+$('#projTabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + t.dataset.cat));
+});
+
+/* ==========================================================
+   4. CREDENTIALS LOGIC (Edit -> textarea -> Done -> locked text)
+   ========================================================== */
+const CRED_KEY = 'adrience_credentials';
+let credText = load(CRED_KEY, '');
+let credEditing = false;
+
+function renderCred() {
+  const box = $('#credBox');
+  if (credEditing) {
+    // EDIT MODE: show an active textarea
+    box.innerHTML = '<textarea id="credInput" placeholder="Type your credentials here..."></textarea>';
+    $('#credInput').value = credText; $('#credInput').focus();
+    $('#credBtn').textContent = 'Done';
+  } else {
+    // VIEW MODE: clean, non-editable text
+    box.innerHTML = `<div class="view ${credText ? '' : 'ph'}">${credText ? esc(credText) : 'No credentials yet. Select Edit to add them.'}</div>`;
+    $('#credBtn').textContent = 'Edit';
+  }
+}
+$('#credBtn').addEventListener('click', () => {
+  if (credEditing) {                          // "Done" pressed: save and lock
+    credText = $('#credInput').value.trim();
+    save(CRED_KEY, credText); toast('Credentials saved.');
+  }
+  credEditing = !credEditing; renderCred();
+});
+
+/* ==========================================================
+   4b. CLUBS / ORGANIZATIONS (Horizontal Logo + Info layout matching Image 3)
+   ========================================================== */
+function buildOrgs() {
+  const host = $('#orgHost'), key = 'adrience_orgs';
+  let data = load(key, []), editing = null, orgImg = '';
+
+  host.innerHTML = `
+    <div class="org-list" id="orgFeed"></div>
+    <div class="org-form-card">
+      <div class="org-form-grid">
+        <div>
+          <div class="drop org-drop" id="orgDrop" tabindex="0">Add/Drop<br>Image here</div>
+          <input type="file" id="orgFile" accept="image/*" hidden>
+        </div>
+        <div class="org-fields">
+          <div class="org-row"><label for="oName">Club / organization name:</label><input type="text" id="oName" placeholder="Club / organization name here"></div>
+          <div class="org-row"><label for="oPos">Position:</label><input type="text" id="oPos" placeholder="e.g. ICT Representative"></div>
+          <div class="org-row"><label for="oYear">Year:</label><input type="text" id="oYear" placeholder="e.g. 2025 - 2026"></div>
+          <div class="org-row"><label for="oDesc">Short description:</label><textarea id="oDesc" placeholder="Short description"></textarea></div>
+          <div class="org-actions">
+            <button class="btn sm" id="oCancel" hidden>Cancel editing</button>
+            <button class="btn dark" id="oSave">Add organization</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  setupDrop($('#orgDrop'), $('#orgFile'), src => { orgImg = src; showPreview($('#orgDrop'), src); });
+
+  function resetOrg() {
+    editing = null; orgImg = '';
+    $('#oName').value = ''; $('#oPos').value = ''; $('#oYear').value = ''; $('#oDesc').value = '';
+    showPreview($('#orgDrop'), '');
+    $('#oSave').textContent = 'Add organization'; $('#oCancel').hidden = true;
+  }
+
+  function renderOrgs() {
+    $('#orgFeed').innerHTML = data.length ? data.map((x, i) => `
+      <div class="org-card" data-id="${x.id}">
+        <img class="org-logo" src="${esc(x.img || PLACEHOLDER)}" alt="${esc(x.name)}">
+        <div class="org-info">
+          <h4>${esc(x.name)}</h4>
+          <div class="org-meta">
+            ${x.pos ? `<span class="org-pill">${esc(x.pos)}</span>` : ''}
+            ${x.year ? `<span class="org-yr">${esc(x.year)}</span>` : ''}
+          </div>
+          ${x.desc ? `<div class="org-desc">${esc(x.desc)}</div>` : ''}
+          <div class="ctrl">
+            <button class="btn sm" data-act="edit">Edit</button>
+            <button class="btn sm" data-act="del">Delete</button>
+            <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">&#9650;</button>
+            <button class="btn sm dark" data-act="down" ${i === data.length - 1 ? 'disabled' : ''} aria-label="Move down">&#9660;</button>
+          </div>
+        </div>
+      </div>`).join('') : '<p class="empty">No clubs or organizations added yet. Use the form below to add one.</p>';
+  }
+
+  $('#oSave').addEventListener('click', () => {
+    const name = $('#oName').value.trim(), pos = $('#oPos').value.trim(), year = $('#oYear').value.trim(), desc = $('#oDesc').value.trim();
+    if (!name) return toast('Add the club or organization name.');
+    if (editing) {
+      const cur = data.find(x => x.id === editing);
+      Object.assign(cur, { name, pos, year, desc, img: orgImg || cur.img });
+    } else {
+      data.push({ id: uid(), name, pos, year, desc, img: orgImg || PLACEHOLDER });
+    }
+    if (save(key, data)) toast(editing ? 'Changes saved.' : 'Organization added.');
+    resetOrg(); renderOrgs();
+  });
+  $('#oCancel').addEventListener('click', resetOrg);
+
+  $('#orgFeed').addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]'); if (!b) return;
+    const id = b.closest('.org-card').dataset.id, i = data.findIndex(x => x.id === id), act = b.dataset.act;
+    if (act === 'del') { if (!confirm('Delete this organization?')) return; data.splice(i, 1); }
+    else if (act === 'up' && i > 0) [data[i - 1], data[i]] = [data[i], data[i - 1]];
+    else if (act === 'down' && i < data.length - 1) [data[i + 1], data[i]] = [data[i], data[i + 1]];
+    else if (act === 'edit') {
+      resetOrg(); editing = id; const x = data[i];
+      $('#oName').value = x.name || ''; $('#oPos').value = x.pos || ''; $('#oYear').value = x.year || ''; $('#oDesc').value = x.desc || '';
+      showPreview($('#orgDrop'), x.img === PLACEHOLDER ? '' : (x.img || ''));
+      $('#oSave').textContent = 'Save changes'; $('#oCancel').hidden = false;
+      $('#oName').scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+    }
+    save(key, data); renderOrgs();
+  });
+
+  renderOrgs();
+}
+
+/* ==========================================================
+   5. APPOINTMENTS (form -> confirmation -> list), saved in localStorage
+   ========================================================== */
+const APPT_KEY = 'adrience_appointments';
+let appts = load(APPT_KEY, []);
+const todayStr = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+const fmtLong = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }); };
+const fmtTime = t => { const d = new Date('1970-01-01T' + t); return isNaN(d) ? t : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
+
+function renderAppts() {
+  const list = [...appts].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));   // soonest first
+  $('#apptList').innerHTML = list.length ? list.map(a => `
+    <div class="acard">
+      <div class="ah"><strong>${esc(a.name)}</strong><span class="pill">Confirmed</span></div>
+      <div><b>Number:</b> ${esc(a.phone)}</div>
+      <div><b>Date:</b> ${esc(fmtLong(a.date))}</div>
+      <div><b>Time:</b> ${esc(fmtTime(a.time))}</div>
+      <div><b>Reason:</b> ${esc(a.reason)}</div>
+      <div class="ctrl" style="margin-top:.5rem"><button class="btn sm" data-del="${a.id}">Delete</button></div>
+    </div>`).join('') : '<p class="noappt">No appointments yet.</p>';
+}
+$('#aDate').min = todayStr();
+$('#aSubmit').addEventListener('click', () => {
+  const a = { id: uid(), name: $('#aName').value.trim(), phone: $('#aPhone').value.trim(), date: $('#aDate').value, time: $('#aTime').value, reason: $('#aReason').value.trim() };
+  if (!a.name || !a.phone || !a.date || !a.time || !a.reason) return toast('Please fill in every field.');
+  if (!/^[+\d][\d\s()-]{6,}$/.test(a.phone)) return toast('Please enter a valid phone number.');
+  if (a.date < todayStr()) return toast('Please choose today or a future date.');
+  appts.push(a);
+  if (!save(APPT_KEY, appts)) { appts.pop(); return; }
+  $('#aDoneMsg').textContent = `Thank you, ${a.name}! Your appointment on ${fmtLong(a.date)} at ${fmtTime(a.time)} is confirmed.`;
+  $('#apptForm').hidden = true; $('#apptDone').hidden = false;                 // show the confirmation
+  ['aName', 'aPhone', 'aDate', 'aTime', 'aReason'].forEach(id => $('#' + id).value = '');
+  renderAppts();
+});
+$('#aAgain').addEventListener('click', () => { $('#apptDone').hidden = true; $('#apptForm').hidden = false; });
+$('#apptList').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b || !confirm('Delete this appointment?')) return;
+  appts = appts.filter(x => x.id !== b.dataset.del); save(APPT_KEY, appts); renderAppts();
+});
+
+/* ==========================================================
+   5b. NAV GLASS EFFECT + EXPLORE BUTTON
+   ========================================================== */
+const navEl = document.querySelector('nav');
+const glass = () => navEl.classList.toggle('scrolled', window.scrollY > 30);   // glass look once scrolled
+window.addEventListener('scroll', glass, { passive: true });
+$('#exploreBtn').addEventListener('click', e => {                              // Explore only scrolls to Overview
+  e.preventDefault(); $('#overview').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* ==========================================================
+   6. START UP
+   ========================================================== */
+buildProjectPanels(); buildOrgs(); renderStories(); renderCred(); renderAppts(); route(); glass();
+</script>
+</body>
+</html>
