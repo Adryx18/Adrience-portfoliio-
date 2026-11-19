@@ -223,6 +223,19 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 .credbox textarea{width:100%;min-height:260px;font-family:inherit;font-size:.9rem;padding:.8rem;border:2px solid var(--blue);border-radius:8px;resize:vertical}
 .right{text-align:right;margin-top:1rem}
 
+/* SHARE / PUBLISH LIVE BAR & CLOUD SYNC */
+.pub-bar{background:#eef1ff;border:2px solid var(--blue);border-radius:14px;padding:.85rem 1.1rem;margin:0 auto 1.5rem;max-width:1000px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem}
+.pub-bar .pinfo{font-size:.82rem;color:#111;line-height:1.45;flex:1 1 260px}
+.pub-bar .pinfo strong{color:var(--blue)}
+.pub-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.modal-bg{position:fixed;inset:0;background:rgba(10,15,60,.65);z-index:120;display:grid;place-items:center;padding:1rem}
+.modal-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:1.4rem;box-shadow:0 16px 40px rgba(0,0,0,.35);color:#111;max-height:90vh;overflow:auto}
+.modal-card h3{color:var(--blue);font-size:1.2rem;margin-bottom:.4rem}
+.modal-card p{font-size:.8rem;line-height:1.55;margin-bottom:.75rem;color:#333}
+.modal-card input{width:100%;padding:.5rem;border:1.5px solid #666;border-radius:6px;font-family:inherit;font-size:.8rem;margin-bottom:.6rem}
+.modal-card label{display:block;font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.2rem}
+.step-box{background:#f5f7ff;border:1px solid #d0d8fa;border-radius:10px;padding:.75rem;font-size:.78rem;line-height:1.55;margin-bottom:.8rem}
+
 /* Toast confirmation */
 #toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--blue);color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.85rem;font-weight:600;transition:.3s;z-index:99}
 #toast.show{transform:translate(-50%,0)}
@@ -243,6 +256,18 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 </nav>
 
 <main>
+<div class="wrap" style="padding-bottom:0">
+  <div class="pub-bar" id="pubBar">
+    <div class="pinfo">
+      <strong>Want others to see what you upload?</strong><br>
+      <span id="syncStatus">Items you add are saved on this device. Click <b>Download Live HTML</b> to export your updated website for GitHub Pages, or connect <b>Free Cloud Sync</b> so updates appear live for everyone.</span>
+    </div>
+    <div class="pub-btns">
+      <button class="btn" id="exportHtmlBtn">Download Live HTML</button>
+      <button class="btn dark" id="cloudSetupBtn">Cloud Sync</button>
+    </div>
+  </div>
+</div>
 
 <!-- ================= HOME ================= -->
 <section class="page" id="page-home">
@@ -393,6 +418,33 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 </footer>
 <div id="toast" role="status"></div>
 
+<!-- CLOUD SYNC / EXPORT MODAL -->
+<div class="modal-bg" id="cloudModal" hidden>
+  <div class="modal-card">
+    <h3>Share Updates Live With Everyone</h3>
+    <p>Static HTML files on GitHub Pages only save edits to your own browser unless you either export the updated HTML file or connect a free JSONBin cloud database.</p>
+    <div class="step-box">
+      <strong>Option A — 1-Click Export (No account needed):</strong><br>
+      Click <b>Download Live HTML</b>, rename the downloaded file to <code>index.html</code>, and upload it to GitHub Pages. Everything you uploaded is baked right into the code!
+    </div>
+    <div class="step-box">
+      <strong>Option B — Free Automatic Cloud Sync (JSONBin.io):</strong><br>
+      1. Create a free account at <b>jsonbin.io</b>, click <b>Create Bin</b>, paste <code>{}</code>, and copy the <b>Bin ID</b>.<br>
+      2. Go to <b>API Keys</b> and copy your <b>X-Master-Key</b>.<br>
+      3. Paste both below and click <b>Save & Connect</b>. Every time you add/edit anything, everyone visiting your link sees it automatically!
+    </div>
+    <label for="jbBin">JSONBin Bin ID</label>
+    <input type="text" id="jbBin" placeholder="e.g. 6740a1b2e41b4d34e4567890">
+    <label for="jbKey">JSONBin X-Master-Key</label>
+    <input type="text" id="jbKey" placeholder="e.g. $2a$10$...">
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.5rem">
+      <button class="btn sm" id="jbClear">Disconnect</button>
+      <button class="btn sm dark" id="jbClose">Close</button>
+      <button class="btn" id="jbSave">Save & Connect</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ==========================================================
    0. HELPERS: localStorage wrapper, escaping, toast
@@ -400,14 +452,79 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 const $ = (s, r = document) => r.querySelector(s);
 const PLACEHOLDER = 'logo.png';           // every media src defaults to this
 
-// Safe load/save. Everything persisted goes through these two functions.
+// BAKED-IN PUBLISHED DATA (populated automatically when you click "Download Live HTML")
+const BAKED_DATA = /*__BAKED_DATA__*/null/*__END_BAKED__*/;
+const CLOUD_CFG = /*__CLOUD_CFG__*/{ bin: '', key: '' }/*__END_CLOUD__*/;
+
+const ALL_KEYS = [
+  'adrience_stories',
+  'adrience_proj_designs',
+  'adrience_proj_videos',
+  'adrience_proj_research',
+  'adrience_proj_books',
+  'adrience_credentials',
+  'adrience_orgs',
+  'adrience_appointments'
+];
+
+// Safe load/save. Reads localStorage first, then falls back to BAKED_DATA inside this HTML file.
 function load(key, fallback) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
-  catch (e) { return fallback; }
+  try {
+    const v = localStorage.getItem(key);
+    if (v !== null) return JSON.parse(v);
+    if (BAKED_DATA && BAKED_DATA[key] !== undefined) return BAKED_DATA[key];
+    return fallback;
+  } catch (e) { return fallback; }
 }
 function save(key, data) {
-  try { localStorage.setItem(key, JSON.stringify(data)); return true; }
-  catch (e) { toast('Storage is full. Delete some items or use smaller images.'); return false; }
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    pushToCloud();
+    return true;
+  } catch (e) { toast('Storage is full. Delete some items or use smaller images.'); return false; }
+}
+
+// CLOUD SYNC (JSONBin.io) — syncs across all devices & visitors when connected
+function getCloudCfg() {
+  const local = load('adrience_cloud_cfg', null);
+  return (local && local.bin && local.key) ? local : CLOUD_CFG;
+}
+let cloudTimer;
+function pushToCloud() {
+  const cfg = getCloudCfg();
+  if (!cfg.bin || !cfg.key) return;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(async () => {
+    try {
+      const bundle = {};
+      ALL_KEYS.forEach(k => { const v = load(k, null); if (v !== null) bundle[k] = v; });
+      await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.bin)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.key },
+        body: JSON.stringify(bundle)
+      });
+    } catch (e) { console.warn('Cloud push failed', e); }
+  }, 600);
+}
+async function pullFromCloud() {
+  const cfg = getCloudCfg();
+  if (!cfg.bin || !cfg.key) return false;
+  try {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.bin)}/latest`, {
+      headers: { 'X-Master-Key': cfg.key }
+    });
+    if (!res.ok) return false;
+    const json = await res.json();
+    const rec = json.record || {};
+    let updated = false;
+    ALL_KEYS.forEach(k => {
+      if (rec[k] !== undefined) {
+        localStorage.setItem(k, JSON.stringify(rec[k]));
+        updated = true;
+      }
+    });
+    return updated;
+  } catch (e) { return false; }
 }
 // Escape user text before putting it into HTML (prevents broken markup)
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1051,9 +1168,68 @@ $('#exploreBtn').addEventListener('click', e => {                              /
 });
 
 /* ==========================================================
-   6. START UP
+   6. PUBLISH / EXPORT LIVE HTML & CLOUD SYNC WIRING
    ========================================================== */
-buildProjectPanels(); buildOrgs(); renderStories(); renderCred(); renderAppts(); route(); glass();
+function updateSyncBanner() {
+  const cfg = getCloudCfg();
+  if (cfg.bin && cfg.key) {
+    $('#syncStatus').innerHTML = '<b>Cloud Sync Active:</b> Everything you add or edit automatically syncs online so anyone with your link sees it live!';
+  }
+}
+
+$('#exportHtmlBtn').addEventListener('click', () => {
+  const bundle = {};
+  ALL_KEYS.forEach(k => { const v = load(k, null); if (v !== null) bundle[k] = v; });
+  const cfg = getCloudCfg();
+  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/\/\*__BAKED_DATA__\*\/[\s\S]*?\/\*__END_BAKED__\*\//, '/*__BAKED_DATA__*/' + JSON.stringify(bundle) + '/*__END_BAKED__*/');
+  html = html.replace(/\/\*__CLOUD_CFG__\*\/[\s\S]*?\/\*__END_CLOUD__\*\//, '/*__CLOUD_CFG__*/' + JSON.stringify(cfg) + '/*__END_CLOUD__*/');
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Downloaded index.html with all your uploads baked in!');
+});
+
+$('#cloudSetupBtn').addEventListener('click', () => {
+  const cfg = getCloudCfg();
+  $('#jbBin').value = cfg.bin || '';
+  $('#jbKey').value = cfg.key || '';
+  $('#cloudModal').hidden = false;
+});
+$('#jbClose').addEventListener('click', () => { $('#cloudModal').hidden = true; });
+$('#jbClear').addEventListener('click', () => {
+  localStorage.removeItem('adrience_cloud_cfg');
+  $('#jbBin').value = ''; $('#jbKey').value = '';
+  toast('Cloud sync disconnected.');
+});
+$('#jbSave').addEventListener('click', async () => {
+  const bin = $('#jbBin').value.trim(), key = $('#jbKey').value.trim();
+  if (!bin || !key) return toast('Enter both the Bin ID and X-Master-Key.');
+  localStorage.setItem('adrience_cloud_cfg', JSON.stringify({ bin, key }));
+  $('#cloudModal').hidden = true;
+  updateSyncBanner();
+  await pullFromCloud();
+  pushToCloud();
+  toast('Connected! Your uploads now sync live for everyone.');
+  location.reload();
+});
+
+/* ==========================================================
+   7. START UP
+   ========================================================== */
+(async function init() {
+  updateSyncBanner();
+  const pulled = await pullFromCloud();
+  if (pulled) {
+    stories = load(STORY_KEY, null) || seedStories;
+    credText = load(CRED_KEY, '');
+    appts = load(APPT_KEY, []);
+  }
+  buildProjectPanels(); buildOrgs(); renderStories(); renderCred(); renderAppts(); route(); glass();
+})();
 </script>
 </body>
 </html>
