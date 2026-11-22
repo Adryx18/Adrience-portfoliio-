@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Adrience | James Adrian Fernandez</title>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -223,23 +225,39 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 .credbox textarea{width:100%;min-height:260px;font-family:inherit;font-size:.9rem;padding:.8rem;border:2px solid var(--blue);border-radius:8px;resize:vertical}
 .right{text-align:right;margin-top:1rem}
 
-/* SHARE / PUBLISH LIVE BAR & CLOUD SYNC */
-.pub-bar{background:#eef1ff;border:2px solid var(--blue);border-radius:14px;padding:.85rem 1.1rem;margin:0 auto 1.5rem;max-width:1000px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem}
-.pub-bar .pinfo{font-size:.82rem;color:#111;line-height:1.45;flex:1 1 260px}
-.pub-bar .pinfo strong{color:var(--blue)}
-.pub-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+/* ADMIN-ONLY: editing tools stay hidden from visitors until the owner signs in */
+body:not(.is-admin) .admin-only{display:none!important}
+body:not(.is-admin) .appt-grid{max-width:520px;margin-inline:auto}
+
+/* LIVE SYNC PANEL (bottom of the footer, after the appointment section) */
+.sync{max-width:1000px;margin:2.2rem auto 0;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.2);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.9rem}
+.sync-info{flex:1 1 280px;font-size:.8rem;line-height:1.55;color:#e8e8e8}
+.sync-info b{color:var(--gold)}
+.sync-state{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.88rem;margin-bottom:.2rem;color:#fff}
+.dot{width:10px;height:10px;border-radius:50%;background:#999;flex:none}
+.dot.live{background:#2ecc71;animation:pulse 2s infinite}
+.dot.wait{background:var(--gold)}
+.dot.off{background:#e74c3c}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(46,204,113,.7)}70%{box-shadow:0 0 0 8px rgba(46,204,113,0)}100%{box-shadow:0 0 0 0 rgba(46,204,113,0)}}
+.sync-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+.sync .btn.dark{background:rgba(255,255,255,.16)}
+.sync .btn.dark:hover{background:var(--blue)}
+.setup-only{display:none!important}
+body.local-mode .setup-only,body.is-admin .setup-only{display:inline-block!important}
+
+/* MODAL (cloud sync setup) */
 .modal-bg{position:fixed;inset:0;background:rgba(10,15,60,.65);z-index:120;display:grid;place-items:center;padding:1rem}
-.modal-card{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:1.4rem;box-shadow:0 16px 40px rgba(0,0,0,.35);color:#111;max-height:90vh;overflow:auto}
+.modal-card{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:1.4rem;box-shadow:0 16px 40px rgba(0,0,0,.35);color:#111;max-height:90vh;overflow:auto}
 .modal-card h3{color:var(--blue);font-size:1.2rem;margin-bottom:.4rem}
 .modal-card p{font-size:.8rem;line-height:1.55;margin-bottom:.75rem;color:#333}
-.modal-card input{width:100%;padding:.5rem;border:1.5px solid #666;border-radius:6px;font-family:inherit;font-size:.8rem;margin-bottom:.6rem}
+.modal-card textarea{width:100%;padding:.5rem;border:1.5px solid #666;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.7rem;line-height:1.45;margin-bottom:.6rem;resize:vertical}
 .modal-card label{display:block;font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.2rem}
 .step-box{background:#f5f7ff;border:1px solid #d0d8fa;border-radius:10px;padding:.75rem;font-size:.78rem;line-height:1.55;margin-bottom:.8rem}
 
 /* Toast confirmation */
 #toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--blue);color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.85rem;font-weight:600;transition:.3s;z-index:99}
 #toast.show{transform:translate(-50%,0)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 
@@ -256,19 +274,6 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 </nav>
 
 <main>
-<div class="wrap" style="padding-bottom:0">
-  <div class="pub-bar" id="pubBar">
-    <div class="pinfo">
-      <strong>Want others to see what you upload?</strong><br>
-      <span id="syncStatus">Items you add are saved on this device. Click <b>Download Live HTML</b> to export your updated website, or connect <b>Free Cloud Sync</b> so updates appear live for everyone.</span>
-    </div>
-    <div class="pub-btns">
-      <button class="btn" id="exportHtmlBtn">Download Live HTML</button>
-      <button class="btn dark" id="cloudSetupBtn">Cloud Sync</button>
-    </div>
-  </div>
-</div>
-
 <!-- ================= HOME ================= -->
 <section class="page" id="page-home">
   <div class="hero">
@@ -311,8 +316,8 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
     <!-- The feed is rendered here by renderStories() -->
     <div class="grid2" id="storyFeed"></div>
 
-    <!-- PUBLISHING TOOL: handled by the "STORIES LOGIC" section in the script -->
-    <div class="card addbox" style="margin-top:2rem">
+    <!-- PUBLISHING TOOL: handled by the "STORIES LOGIC" section in the script (owner only) -->
+    <div class="card addbox admin-only" style="margin-top:2rem">
       <div class="form">
         <div class="drop" id="storyDrop" tabindex="0">Add/Drop<br>Image here</div>
         <input type="file" id="storyFile" accept="image/*" hidden>
@@ -369,7 +374,7 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
     <div class="cred">
       <h2>CREDENTIALS</h2>
       <div class="credbox" id="credBox"></div>
-      <div class="right"><button class="btn" id="credBtn">Edit</button></div>
+      <div class="right admin-only"><button class="btn" id="credBtn">Edit</button></div>
     </div>
 
     <!-- CLUBS / ORGANIZATIONS: built by makeManager() in the script -->
@@ -409,38 +414,47 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
           <button class="btn" id="aAgain">Set another</button>
         </div>
       </div>
-      <div>
+      <div class="admin-only">
         <h3>Scheduled Appointments</h3>
         <div class="alist" id="apptList"></div>
       </div>
     </div>
   </section>
+
+  <!-- LIVE SYNC: moved here, after the appointment section -->
+  <section class="sync" id="syncPanel" aria-label="Live updates">
+    <div class="sync-info">
+      <div class="sync-state"><span class="dot wait" id="syncDot"></span><span id="syncLabel">Connecting…</span></div>
+      <div id="syncStatus">Checking for the latest updates…</div>
+    </div>
+    <div class="sync-btns">
+      <button class="btn sm dark" id="authBtn" hidden>Owner login</button>
+      <button class="btn sm setup-only" id="cloudSetupBtn">Cloud Sync Setup</button>
+      <button class="btn sm dark admin-only" id="backupBtn">Download backup</button>
+    </div>
+  </section>
 </footer>
 <div id="toast" role="status"></div>
 
-<!-- CLOUD SYNC / EXPORT MODAL -->
+<!-- CLOUD SYNC SETUP MODAL (owner only) -->
 <div class="modal-bg" id="cloudModal" hidden>
   <div class="modal-card">
-    <h3>Share Updates Live With Everyone</h3>
-    <p>Static HTML files on GitHub Pages only save edits to your own browser unless you either export the updated HTML file or connect a free JSONBin cloud database.</p>
-    <div class="step-box">
-      <strong>Option A — 1-Click Export (No account needed):</strong><br>
-      Click <b>Download Live HTML</b>, rename the downloaded file to <code>index.html</code>, and upload it to GitHub Pages. Everything you uploaded is baked right into the code!
-    </div>
-    <div class="step-box">
-      <strong>Option B — Free Automatic Cloud Sync (JSONBin.io):</strong><br>
-      1. Create a free account at <b>jsonbin.io</b>, click <b>Create Bin</b>, paste <code>{}</code>, and copy the <b>Bin ID</b>.<br>
-      2. Go to <b>API Keys</b> and copy your <b>X-Master-Key</b>.<br>
-      3. Paste both below and click <b>Save & Connect</b>. Every time you add/edit anything, everyone visiting your link sees it automatically!
-    </div>
-    <label for="jbBin">JSONBin Bin ID</label>
-    <input type="text" id="jbBin" placeholder="e.g. 6740a1b2e41b4d34e4567890">
-    <label for="jbKey">JSONBin X-Master-Key</label>
-    <input type="text" id="jbKey" placeholder="e.g. $2a$10$...">
-    <div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-top:.5rem">
-      <button class="btn sm" id="jbClear">Disconnect</button>
-      <button class="btn sm dark" id="jbClose">Close</button>
-      <button class="btn" id="jbSave">Save & Connect</button>
+    <h3>Cloud Sync Setup (free)</h3>
+    <p>Connect a free Firebase database once. After that, every story, project, credential and organization you add shows up for all visitors within a second, with no re-uploading of this HTML file.</p>
+    <div class="step-box"><strong>1. Create the database</strong><br>Go to <b>console.firebase.google.com</b> &rarr; <b>Add project</b> (turn Analytics off) &rarr; <b>Build &rarr; Firestore Database &rarr; Create database</b> (production mode, pick the closest region).</div>
+    <div class="step-box"><strong>2. Turn on owner login</strong><br><b>Build &rarr; Authentication &rarr; Get started &rarr; Google &rarr; Enable.</b> Then <b>Settings &rarr; Authorized domains &rarr; Add domain</b> and add your site's domain (for GitHub Pages: <code>yourname.github.io</code>).</div>
+    <div class="step-box"><strong>3. Paste the security rules</strong><br><b>Firestore Database &rarr; Rules</b>: replace everything with the rules below and click <b>Publish</b>. They let everyone read the site, but only <b id="ruleEmail"></b> can change it. Appointments are private.</div>
+    <textarea id="rulesBox" rows="9" readonly></textarea>
+    <div style="display:flex;justify-content:flex-end;margin:-.2rem 0 .8rem"><button class="btn sm" id="rulesCopy">Copy rules</button></div>
+    <div class="step-box"><strong>4. Connect this site</strong><br><b>Project settings (gear icon) &rarr; Your apps &rarr; Web (&lt;/&gt;)</b> &rarr; register an app &rarr; copy the <code>firebaseConfig</code> block and paste it here.</div>
+    <label for="fbCfg">Firebase config</label>
+    <textarea id="fbCfg" rows="7" placeholder='const firebaseConfig = {&#10;  apiKey: "...",&#10;  authDomain: "...",&#10;  projectId: "...",&#10;  appId: "..."&#10;};'></textarea>
+    <p><b>Save &amp; Connect</b> turns sync on for this browser so you can test it. To turn it on for every visitor, click <b>Copy line for index.html</b>, paste it over <code>const FIREBASE_CONFIG = null;</code> near the top of the script, and upload the file once. Your existing content uploads automatically the first time you sign in.</p>
+    <div style="display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap">
+      <button class="btn sm" id="fbClear">Disconnect</button>
+      <button class="btn sm dark" id="fbClose">Close</button>
+      <button class="btn sm" id="fbCopy">Copy line for index.html</button>
+      <button class="btn" id="fbSave">Save &amp; Connect</button>
     </div>
   </div>
 </div>
@@ -452,83 +466,231 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 const $ = (s, r = document) => r.querySelector(s);
 const PLACEHOLDER = 'logo.png';           // every media src defaults to this
 
-// BAKED-IN PUBLISHED DATA (populated automatically when you click "Download Live HTML")
-const BAKED_DATA = /*__BAKED_DATA__*/null/*__END_BAKED__*/;
-const CLOUD_CFG = /*__CLOUD_CFG__*/{ bin: '', key: '' }/*__END_CLOUD__*/;
+/* ==========================================================
+   CLOUD SETTINGS  <<< the only two lines you ever edit >>>
+   ========================================================== */
+const OWNER_EMAIL = 'jamesadrianfernandez18@gmail.com';   // the Google account allowed to edit the site
+const FIREBASE_CONFIG = null;                              // paste your Firebase config object here (see "Cloud Sync Setup" in the footer)
 
-const ALL_KEYS = [
-  'adrience_stories',
-  'adrience_proj_designs',
-  'adrience_proj_videos',
-  'adrience_proj_research',
-  'adrience_proj_books',
-  'adrience_credentials',
-  'adrience_orgs',
-  'adrience_appointments'
-];
+// legacy localStorage key -> Firestore collection (one document per item, so only changed items travel)
+const SYNC_MAP = {
+  adrience_stories: 'stories',
+  adrience_proj_designs: 'designs',
+  adrience_proj_videos: 'videos',
+  adrience_proj_research: 'research',
+  adrience_proj_books: 'books',
+  adrience_orgs: 'orgs'
+};
 
-// Safe load/save. Reads localStorage first, then falls back to BAKED_DATA inside this HTML file.
+function getFbCfg() {
+  if (FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey) return FIREBASE_CONFIG;
+  try { const c = JSON.parse(localStorage.getItem('adrience_fb_cfg') || 'null'); if (c && c.apiKey && c.projectId) return c; } catch (e) {}
+  return null;
+}
+const FB_CFG = getFbCfg(), CLOUD_ON = !!FB_CFG;      // no config = "local mode" (works exactly like before, on this device only)
+const lsKey = k => CLOUD_ON ? 'adrience_c_' + k : k; // cloud mode keeps its own offline cache, old local data stays untouched for migration
+
+const cache = {}, subs = {}, lastSig = {}, loaded = {}, serverSeen = {}, remoteSig = {};
+let isAdmin = false, adminEmail = '', CLOUD = null, syncState = 'connecting', syncErr = '';
+
+// stable signature (key order ignored) used to skip re-rendering when nothing really changed
+const sig = v => JSON.stringify(v, (k, x) => (x && typeof x === 'object' && !Array.isArray(x)) ? Object.keys(x).sort().reduce((o, n) => (o[n] = x[n], o), {}) : x);
+const clean = o => JSON.parse(JSON.stringify(o));
+const isLoading = key => CLOUD_ON && !loaded[key];
+
 function load(key, fallback) {
+  if (key in cache) return cache[key];
   try {
-    const v = localStorage.getItem(key);
-    if (v !== null) return JSON.parse(v);
-    if (BAKED_DATA && BAKED_DATA[key] !== undefined) return BAKED_DATA[key];
-    return fallback;
-  } catch (e) { return fallback; }
+    const v = localStorage.getItem(lsKey(key));
+    if (v !== null) { cache[key] = JSON.parse(v); loaded[key] = true; return cache[key]; }
+  } catch (e) {}
+  return fallback;
 }
+// Saves locally (instant) and, in cloud mode, pushes only the changed items to the database.
 function save(key, data) {
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-    pushToCloud();
-    return true;
-  } catch (e) { toast('Storage is full. Delete some items or use smaller images.'); return false; }
+  cache[key] = data; lastSig[key] = sig(data);
+  try { localStorage.setItem(lsKey(key), JSON.stringify(data)); }
+  catch (e) { if (!CLOUD_ON) { toast('Storage is full. Delete some items or use smaller images.'); return false; } }
+  if (CLOUD_ON) pushRemote(key, data);
+  return true;
 }
 
-// CLOUD SYNC (JSONBin.io) — syncs across all devices & visitors when connected
-function getCloudCfg() {
-  const local = load('adrience_cloud_cfg', null);
-  return (local && local.bin && local.key) ? local : CLOUD_CFG;
-}
-let cloudTimer;
-function pushToCloud() {
-  const cfg = getCloudCfg();
-  if (!cfg.bin || !cfg.key) return;
-  clearTimeout(cloudTimer);
-  cloudTimer = setTimeout(async () => {
-    try {
-      const bundle = {};
-      ALL_KEYS.forEach(k => { const v = load(k, null); if (v !== null) bundle[k] = v; });
-      await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.bin)}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': cfg.key },
-        body: JSON.stringify(bundle)
-      });
-    } catch (e) { console.warn('Cloud push failed', e); }
-  }, 600);
-}
-async function pullFromCloud() {
-  const cfg = getCloudCfg();
-  if (!cfg.bin || !cfg.key) return false;
+/* ---------- LIVE SYNC (Firebase Firestore, free plan) ---------- */
+const FB_BASE = 'https://www.gstatic.com/firebasejs/10.14.1/';
+
+async function pushRemote(key, data) {
+  if (!CLOUD || !isAdmin) return;
+  const { db, fs } = CLOUD;
   try {
-    const res = await fetch(`https://api.jsonbin.io/v3/b/${encodeURIComponent(cfg.bin)}/latest`, {
-      headers: { 'X-Master-Key': cfg.key }
+    if (key === CRED_KEY) { await fs.setDoc(fs.doc(db, 'site', 'credentials'), { text: String(data || '') }); return; }
+    const col = SYNC_MAP[key]; if (!col) return;
+    const known = remoteSig[col] || new Map(), ids = new Set(), batch = fs.writeBatch(db); let n = 0;
+    data.forEach((item, i) => {
+      const { id, ...rest } = item; ids.add(id);
+      const payload = clean({ ...rest, order: i });
+      if (known.get(id) !== sig(payload)) { batch.set(fs.doc(db, col, id), payload); n++; }   // only new/changed items
     });
-    if (!res.ok) return false;
-    const json = await res.json();
-    const rec = json.record || {};
-    let updated = false;
-    ALL_KEYS.forEach(k => {
-      if (rec[k] !== undefined) {
-        localStorage.setItem(k, JSON.stringify(rec[k]));
-        updated = true;
-      }
-    });
-    return updated;
-  } catch (e) { return false; }
+    known.forEach((_, id) => { if (!ids.has(id)) { batch.delete(fs.doc(db, col, id)); n++; } });
+    if (n) await batch.commit();
+  } catch (e) {
+    console.warn('Sync failed', e);
+    toast(e.code === 'permission-denied' ? 'Not allowed. Sign in with the owner Google account.' : 'Could not sync that change. Please try again.');
+  }
 }
+
+// A snapshot arrived from the cloud (or from this device's offline cache)
+function applyRemote(key, val, meta) {
+  const s = sig(val), first = !loaded[key], changed = s !== lastSig[key];
+  loaded[key] = true;
+  if (changed || first) {
+    cache[key] = val; lastSig[key] = s;
+    try { localStorage.setItem(lsKey(key), JSON.stringify(val)); } catch (e) {}
+    if (subs[key]) subs[key](val);
+    if (changed && !first && serverSeen[key] && !meta.fromCache && !meta.hasPendingWrites && !isAdmin) toast('✨ New content just arrived');
+  }
+  if (!meta.fromCache) serverSeen[key] = true;
+}
+function trackConn(m) {
+  let next = syncState;
+  if (!m.fromCache) next = 'live';
+  else if (syncState === 'live' || !navigator.onLine) next = 'offline';
+  if (next !== syncState) { syncState = next; renderSync(); }
+}
+function onSyncError(err) { console.warn('Sync error', err); syncState = 'error'; syncErr = err && err.code || ''; renderSync(); }
+
+async function startCloud() {
+  const [appMod, fs] = await Promise.all([import(FB_BASE + 'firebase-app.js'), import(FB_BASE + 'firebase-firestore.js')]);
+  const app = appMod.initializeApp(FB_CFG);
+  let db;
+  try { db = fs.initializeFirestore(app, { localCache: fs.persistentLocalCache({ tabManager: fs.persistentMultipleTabManager() }) }); }   // offline cache = instant repeat visits
+  catch (e) { db = fs.getFirestore(app); }
+  CLOUD = { app, db, fs };
+  const opts = { includeMetadataChanges: true };
+  Object.entries(SYNC_MAP).forEach(([key, col]) => {
+    fs.onSnapshot(fs.query(fs.collection(db, col), fs.orderBy('order')), opts, snap => {
+      const arr = [], known = new Map();
+      snap.forEach(d => { const o = d.data(); known.set(d.id, sig(o)); const { order, ...rest } = o; arr.push({ id: d.id, ...rest }); });
+      remoteSig[col] = known; trackConn(snap.metadata); applyRemote(key, arr, snap.metadata);
+    }, onSyncError);
+  });
+  fs.onSnapshot(fs.doc(db, 'site', 'credentials'), opts, snap => {
+    trackConn(snap.metadata);
+    applyRemote(CRED_KEY, snap.exists() ? String(snap.data().text || '') : '', snap.metadata);
+  }, onSyncError);
+  startAuth().catch(e => console.warn('Owner login unavailable', e));
+}
+
+async function startAuth() {
+  const au = await import(FB_BASE + 'firebase-auth.js');
+  const auth = au.getAuth(CLOUD.app);
+  CLOUD.au = au; CLOUD.auth = auth;
+  au.onAuthStateChanged(auth, user => {
+    const mine = !!user && (user.email || '').toLowerCase() === OWNER_EMAIL.toLowerCase();
+    if (user && !mine) { toast('That Google account is not the site owner.'); setAdmin(false, null); au.signOut(auth); return; }
+    setAdmin(mine, user);
+  });
+}
+
+function setAdmin(on, user) {
+  isAdmin = on; adminEmail = (user && user.email) || '';
+  document.body.classList.toggle('is-admin', on);
+  const b = $('#authBtn'); if (b) b.textContent = on ? 'Sign out' : 'Owner login';
+  if (!on) credEditing = false;
+  if (!credEditing) renderCred();
+  if (CLOUD_ON && CLOUD) { if (on) { startApptListener(); bootstrap().catch(e => console.warn('First-time upload skipped', e)); } else stopApptListener(); }
+  renderSync(); renderAppts();
+}
+
+// Appointments are private: only the signed-in owner can read them (visitors can only submit)
+let apptUnsub = null;
+function startApptListener() {
+  if (apptUnsub || !CLOUD) return;
+  const { db, fs } = CLOUD;
+  apptUnsub = fs.onSnapshot(fs.collection(db, 'appointments'), snap => {
+    appts = []; snap.forEach(d => appts.push({ id: d.id, ...d.data() })); renderAppts();
+  }, e => console.warn('Appointments', e));
+}
+function stopApptListener() { if (apptUnsub) apptUnsub(); apptUnsub = null; appts = []; renderAppts(); }
+
+// First owner sign-in: uploads what you already had on this browser (or the starter stories) once
+const readLegacy = key => { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { return null; } };
+async function bootstrap() {
+  const { db, fs } = CLOUD, metaRef = fs.doc(db, 'site', 'meta');
+  const meta = await fs.getDoc(metaRef);
+  if (meta.exists() && meta.data().bootstrapped) return;
+  const batch = fs.writeBatch(db); let n = 0, skipped = 0;
+  for (const [key, col] of Object.entries(SYNC_MAP)) {
+    const has = await fs.getDocs(fs.query(fs.collection(db, col), fs.limit(1)));
+    if (!has.empty) continue;
+    let src = readLegacy(key); if (!Array.isArray(src)) src = key === STORY_KEY ? seedStories : [];
+    src.forEach((it, i) => {
+      const { id, ...rest } = it, payload = clean({ ...rest, order: i });
+      if (JSON.stringify(payload).length > 900000) { skipped++; return; }      // Firestore documents max out near 1 MB
+      batch.set(fs.doc(db, col, id || uid()), payload); n++;
+    });
+  }
+  const cred = readLegacy(CRED_KEY);
+  if (typeof cred === 'string' && cred.trim()) {
+    const cd = await fs.getDoc(fs.doc(db, 'site', 'credentials'));
+    if (!cd.exists()) { batch.set(fs.doc(db, 'site', 'credentials'), { text: cred }); n++; }
+  }
+  batch.set(metaRef, { bootstrapped: true });
+  await batch.commit();
+  if (n) toast('Your existing content was uploaded to the cloud.');
+  if (skipped) setTimeout(() => toast(skipped + ' item(s) were too large to upload. Re-add them with a smaller image or a link.'), 2600);
+}
+
+/* ---------- Footer status panel ---------- */
+function renderSync() {
+  const dot = $('#syncDot'); if (!dot) return;
+  let cls = 'wait', label = 'Connecting…', text = 'Checking for the latest updates…';
+  if (!CLOUD_ON) { label = 'Local mode'; text = 'Items you add are saved on this device only. Open <b>Cloud Sync Setup</b> to make every update live for all visitors.'; }
+  else if (syncState === 'error') { cls = 'off'; label = 'Sync problem'; text = syncErr === 'permission-denied' ? 'The database refused the request. Re-check the security rules in <b>Cloud Sync Setup</b>.' : 'Could not reach the cloud database. Showing the last saved copy.'; }
+  else if (syncState === 'offline') { label = 'Offline'; text = 'Showing the last saved copy. It refreshes by itself when you are back online.'; }
+  else if (syncState === 'live') {
+    cls = 'live'; label = 'Live';
+    text = isAdmin ? `Signed in as <b>${esc(adminEmail)}</b>. Everything you add or edit goes live for all visitors instantly.` + (FIREBASE_CONFIG ? '' : ' <b>Note:</b> the config is only saved in this browser. Paste it into index.html so visitors get live updates too.')
+                   : 'This site updates in real time. New stories and projects appear here automatically, no refresh needed.';
+  }
+  dot.className = 'dot ' + cls; $('#syncLabel').textContent = label; $('#syncStatus').innerHTML = text;
+}
+window.addEventListener('online', renderSync);
+window.addEventListener('offline', () => { if (syncState === 'live') syncState = 'offline'; renderSync(); });
+
+const RULES = () => `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == '${OWNER_EMAIL}'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Website content: everyone can read, only the owner can write
+    match /{col}/{id} {
+      allow read: if col in ['stories','designs','videos','research','books','orgs','site'];
+      allow write: if isOwner() && col in ['stories','designs','videos','research','books','orgs','site'];
+    }
+
+    // Appointments: anyone can submit one, only the owner can read or delete
+    match /appointments/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name','phone','date','time','reason'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.phone is string && request.resource.data.phone.size() <= 40
+        && request.resource.data.date is string && request.resource.data.date.size() <= 20
+        && request.resource.data.time is string && request.resource.data.time.size() <= 20
+        && request.resource.data.reason is string && request.resource.data.reason.size() <= 1000;
+      allow read, update, delete: if isOwner();
+    }
+  }
+}`;
+
 // Escape user text before putting it into HTML (prevents broken markup)
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// "Nothing here yet" text; shows Loading… until the first cloud answer; owner-only hint hidden from visitors
+const emptyMsg = (key, txt, ownerHint = '') => `<p class="empty">${isLoading(key) ? 'Loading…' : esc(txt) + (ownerHint ? ` <span class="admin-only">${esc(ownerHint)}</span>` : '')}</p>`;
 
 let toastTimer;
 function toast(msg) {
@@ -595,12 +757,13 @@ const seedStories = [
   { t: 'PASIKATAY 2026', d: '2026-05-01', p: "Working behind the scenes with comms in hand, PASIKATAY 2026 put event coordination and real-time problem-solving to the test. Helping steer the flow of one of the campus's biggest celebrations reinforced the value of calm leadership under pressure." },
   { t: 'Mapua MCM SHS Graduation Ceremony', d: '2026-05-01', p: 'Standing on stage as the 2026 Class Valedictorian and Batch Speaker marked the culmination of years of dedication, late-night deadlines, and leadership service. Receiving Top 1 honors out of 599 graduates was both a deeply humbling milestone and a proud send-off into the next chapter.' },
   { t: 'ADDU: AFYOP Dayon 2026', d: '2026-07-01', p: 'Stepping into Ateneo de Davao University through the First Year Onboarding Program (Dayon 2026) opened the door to a vibrant new community. Surrounded by fellow freshmen and student leaders, the event set the tone for my journey in Computer Studies and campus life.' }
-].map(s => ({ id: uid(), img: PLACEHOLDER, ...s }));
+].map((s, i) => ({ id: 'seed-' + (i + 1), img: PLACEHOLDER, ...s }));
 
-let stories = load(STORY_KEY, null) || seedStories;
+let stories = load(STORY_KEY, null) || (CLOUD_ON ? [] : seedStories);
 let editingId = null;      // id of the story being edited (null = creating new)
 let storyImg = '';         // image currently chosen in the form
 
+subs[STORY_KEY] = arr => { stories = arr; renderStories(); };   // live updates from the cloud
 const fmtDate = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); };
 
 // Opens a story in the full-screen reader page (Image 1)
@@ -620,14 +783,14 @@ function openStoryReader(id) {
 // Draws the whole feed. Called after every change.
 function renderStories() {
   const feed = $('#storyFeed');
-  if (!stories.length) { feed.innerHTML = '<p class="empty">No stories yet. Publish your first one below.</p>'; return; }
+  if (!stories.length) { feed.innerHTML = emptyMsg(STORY_KEY, 'No stories yet.', 'Publish your first one below.'); return; }
   feed.innerHTML = stories.map((s, i) => `
     <article class="card story" data-id="${s.id}">
       <img src="${esc(s.img || PLACEHOLDER)}" alt="${esc(s.t)}" style="cursor:pointer" data-act="read">
       <h3>${esc(s.t)}</h3><div class="date">${esc(fmtDate(s.d))}</div>
       <p class="cap clamp">${esc(s.p)}</p>
       <button class="more" data-act="read">Read full</button>
-      <div class="ctrl">
+      <div class="ctrl admin-only">
         <button class="btn sm" data-act="edit">Edit</button>
         <button class="btn sm" data-act="del">Delete</button>
         <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">▲</button>
@@ -791,7 +954,7 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
   }).join('');
 
   if (preview) {
-    host.innerHTML = `<div class="${grid}"></div><div class="card addbox split" style="margin-top:2rem"><div class="split-grid">
+    host.innerHTML = `<div class="${grid}"></div><div class="card addbox split admin-only" style="margin-top:2rem"><div class="split-grid">
       <div class="split-left">
         <div class="prev-empty" data-prevempty>Live Preview will appear here once you upload an image or paste a link.</div>
         <div class="prev-box" data-prevbox hidden style="margin-top:0">
@@ -812,7 +975,7 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
       <div class="form split-right">${fieldsHtml}</div>
     </div></div>`;
   } else {
-    host.innerHTML = `<div class="${grid}"></div><div class="card addbox" style="margin-top:2rem"><div class="form">${fieldsHtml}
+    host.innerHTML = `<div class="${grid}"></div><div class="card addbox admin-only" style="margin-top:2rem"><div class="form">${fieldsHtml}
       <button class="btn dark" data-save>Add ${noun}</button><button class="btn sm" data-cancel hidden>Cancel editing</button></div></div>`;
   }
 
@@ -858,7 +1021,7 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
     if (f.type === 'image') setupDrop(el(f.k), q(`[data-in="${f.k}"]`), src => { draft[f.k] = src; showPreview(el(f.k), src); updatePreview(); });
     else if (f.type === 'file') el(f.k).addEventListener('change', e => {
       const file = e.target.files[0]; if (!file) return;
-      if (file.size > 1.5 * 1024 * 1024) { e.target.value = ''; return toast('File is over 1.5 MB. Please paste a link instead.'); }
+      if (file.size > 600 * 1024) { e.target.value = ''; return toast('File is over 600 KB. Please paste a link instead.'); }
       const fr = new FileReader();
       fr.onload = () => { draft[f.k] = fr.result; draft[f.k + 'Name'] = file.name; q(`[data-fn="${f.k}"]`).textContent = 'Selected: ' + file.name; };
       fr.readAsDataURL(file);
@@ -884,20 +1047,21 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
   function render() {
     feed.innerHTML = data.length ? data.map((x, i) => `
       <div class="card item ${cls}" data-id="${x.id}">${card(x)}
-        <div class="ctrl">
+        <div class="ctrl admin-only">
           <button class="btn sm" data-act="edit">Edit</button>
           <button class="btn sm" data-act="del">Delete</button>
           <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">&#9650;</button>
           <button class="btn sm dark" data-act="down" ${i === data.length - 1 ? 'disabled' : ''} aria-label="Move down">&#9660;</button>
         </div>
-      </div>`).join('') : '<p class="empty">Nothing here yet. Use the form below to add the first one.</p>';
+      </div>`).join('') : emptyMsg(key, 'Nothing here yet.', 'Use the form below to add the first one.');
   }
 
   // ADD or SAVE CHANGES
   saveBtn.addEventListener('click', () => {
     const item = collectDraft();
     const err = check(item); if (err) return toast(err);
-    if (editing) Object.assign(data.find(x => x.id === editing), item); else data.push({ id: uid(), ...item });   // no limit
+    const cur = editing && data.find(x => x.id === editing);
+    if (cur) Object.assign(cur, item); else data.push({ id: editing || uid(), ...item });   // no limit
     if (save(key, data)) toast(editing ? 'Changes saved.' : 'Published!');
     reset(); render();
   });
@@ -928,6 +1092,7 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
     }
     save(key, data); render();
   });
+  subs[key] = arr => { data = arr; render(); };               // live updates from the cloud
   render();
 }
 
@@ -961,7 +1126,7 @@ const CATS = {
       check: i => !i.title ? 'Add a title.' : !i.url ? 'Add a video link.' : '',
       card: x => `${renderVideoMedia(x, false)}<h4>${esc(x.title)}</h4>${more(x.cap)}${x.url ? `<a class="lnk" href="${safeUrl(x.url)}" target="_blank" rel="noopener">Open original link</a>` : ''}` } },
   research: { label: 'Research',
-    intro: 'Research papers, studies, and documents. Upload a file (up to 1.5 MB) or paste a link to where the document lives.',
+    intro: 'Research papers, studies, and documents. Upload a small file (up to 600 KB) or paste a link to where the document lives.',
     cfg: { key: 'adrience_proj_research', noun: 'research', grid: 'grid2',
       fields: [{ k: 'title', type: 'text', label: 'Title', ph: 'Research title' }, { k: 'desc', type: 'textarea', label: 'Description', ph: 'Short summary (optional)' },
                { k: 'url', type: 'text', label: 'Link to document', ph: 'Google Drive, PDF, or website link' }, { k: 'file', type: 'file', label: 'Or upload a file' }],
@@ -1004,6 +1169,7 @@ $('#projTabs').addEventListener('click', e => {
 const CRED_KEY = 'adrience_credentials';
 let credText = load(CRED_KEY, '');
 let credEditing = false;
+subs[CRED_KEY] = v => { credText = v; if (!credEditing) renderCred(); };   // live updates from the cloud
 
 function renderCred() {
   const box = $('#credBox');
@@ -1014,7 +1180,7 @@ function renderCred() {
     $('#credBtn').textContent = 'Done';
   } else {
     // VIEW MODE: clean, non-editable text
-    box.innerHTML = `<div class="view ${credText ? '' : 'ph'}">${credText ? esc(credText) : 'No credentials yet. Select Edit to add them.'}</div>`;
+    box.innerHTML = `<div class="view ${credText ? '' : 'ph'}">${credText ? esc(credText) : (isLoading(CRED_KEY) ? 'Loading…' : isAdmin ? 'No credentials yet. Select Edit to add them.' : 'No credentials added yet.')}</div>`;
     $('#credBtn').textContent = 'Edit';
   }
 }
@@ -1035,7 +1201,7 @@ function buildOrgs() {
 
   host.innerHTML = `
     <div class="org-list" id="orgFeed"></div>
-    <div class="org-form-card">
+    <div class="org-form-card admin-only">
       <div class="org-form-grid">
         <div>
           <div class="drop org-drop" id="orgDrop" tabindex="0">Add/Drop<br>Image here</div>
@@ -1074,14 +1240,14 @@ function buildOrgs() {
             ${x.year ? `<span class="org-yr">${esc(x.year)}</span>` : ''}
           </div>
           ${x.desc ? `<div class="org-desc">${esc(x.desc)}</div>` : ''}
-          <div class="ctrl">
+          <div class="ctrl admin-only">
             <button class="btn sm" data-act="edit">Edit</button>
             <button class="btn sm" data-act="del">Delete</button>
             <button class="btn sm dark" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="Move up">&#9650;</button>
             <button class="btn sm dark" data-act="down" ${i === data.length - 1 ? 'disabled' : ''} aria-label="Move down">&#9660;</button>
           </div>
         </div>
-      </div>`).join('') : '<p class="empty">No clubs or organizations added yet. Use the form below to add one.</p>';
+      </div>`).join('') : emptyMsg(key, 'No clubs or organizations added yet.', 'Use the form below to add one.');
   }
 
   $('#oSave').addEventListener('click', () => {
@@ -1114,6 +1280,7 @@ function buildOrgs() {
     save(key, data); renderOrgs();
   });
 
+  subs[key] = arr => { data = arr; renderOrgs(); };           // live updates from the cloud
   renderOrgs();
 }
 
@@ -1121,7 +1288,7 @@ function buildOrgs() {
    5. APPOINTMENTS (form -> confirmation -> list), saved in localStorage
    ========================================================== */
 const APPT_KEY = 'adrience_appointments';
-let appts = load(APPT_KEY, []);
+let appts = CLOUD_ON ? [] : load(APPT_KEY, []);   // cloud mode: private, only the owner can read them
 const todayStr = () => { const d = new Date(); return new Date(d - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
 const fmtLong = iso => { const d = new Date(iso + 'T00:00:00'); return isNaN(d) ? iso : d.toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' }); };
 const fmtTime = t => { const d = new Date('1970-01-01T' + t); return isNaN(d) ? t : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); };
@@ -1130,7 +1297,7 @@ function renderAppts() {
   const list = [...appts].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));   // soonest first
   $('#apptList').innerHTML = list.length ? list.map(a => `
     <div class="acard">
-      <div class="ah"><strong>${esc(a.name)}</strong><span class="pill">Confirmed</span></div>
+      <div class="ah"><strong>${esc(a.name)}</strong><span class="pill">New</span></div>
       <div><b>Number:</b> ${esc(a.phone)}</div>
       <div><b>Date:</b> ${esc(fmtLong(a.date))}</div>
       <div><b>Time:</b> ${esc(fmtTime(a.time))}</div>
@@ -1139,22 +1306,37 @@ function renderAppts() {
     </div>`).join('') : '<p class="noappt">No appointments yet.</p>';
 }
 $('#aDate').min = todayStr();
-$('#aSubmit').addEventListener('click', () => {
+// Sends one appointment to the database. Resolves true if it is only queued (offline), false if the server confirmed it.
+async function sendApptCloud(a) {
+  if (!CLOUD) throw new Error('not connected');
+  const { id, ...rest } = a, p = CLOUD.fs.setDoc(CLOUD.fs.doc(CLOUD.db, 'appointments', id), rest);
+  const r = await Promise.race([p.then(() => 'ok'), new Promise(res => setTimeout(() => res('slow'), 8000))]);
+  if (r === 'slow') { p.catch(() => {}); return true; }
+  return false;
+}
+$('#aSubmit').addEventListener('click', async () => {
   const a = { id: uid(), name: $('#aName').value.trim(), phone: $('#aPhone').value.trim(), date: $('#aDate').value, time: $('#aTime').value, reason: $('#aReason').value.trim() };
   if (!a.name || !a.phone || !a.date || !a.time || !a.reason) return toast('Please fill in every field.');
   if (!/^[+\d][\d\s()-]{6,}$/.test(a.phone)) return toast('Please enter a valid phone number.');
   if (a.date < todayStr()) return toast('Please choose today or a future date.');
-  appts.push(a);
-  if (!save(APPT_KEY, appts)) { appts.pop(); return; }
-  $('#aDoneMsg').textContent = `Thank you, ${a.name}! Your appointment on ${fmtLong(a.date)} at ${fmtTime(a.time)} is confirmed.`;
-  $('#apptForm').hidden = true; $('#apptDone').hidden = false;                 // show the confirmation
-  ['aName', 'aPhone', 'aDate', 'aTime', 'aReason'].forEach(id => $('#' + id).value = '');
-  renderAppts();
+  const btn = $('#aSubmit'); btn.disabled = true;
+  try {
+    let queued = false;
+    if (CLOUD_ON) queued = await sendApptCloud(a);
+    else { appts.push(a); if (!save(APPT_KEY, appts)) { appts.pop(); return; } }
+    $('#aDoneMsg').textContent = `Thank you, ${a.name}! Your appointment request for ${fmtLong(a.date)} at ${fmtTime(a.time)} has been received.` + (queued ? ' You appear to be offline, so it will be sent automatically as soon as your connection returns.' : '');
+    $('#apptForm').hidden = true; $('#apptDone').hidden = false;                 // show the confirmation
+    ['aName', 'aPhone', 'aDate', 'aTime', 'aReason'].forEach(id => $('#' + id).value = '');
+    renderAppts();
+  } catch (e) { console.warn(e); toast('Could not send your request. Please check your connection and try again.'); }
+  finally { btn.disabled = false; }
 });
 $('#aAgain').addEventListener('click', () => { $('#apptDone').hidden = true; $('#apptForm').hidden = false; });
 $('#apptList').addEventListener('click', e => {
   const b = e.target.closest('[data-del]'); if (!b || !confirm('Delete this appointment?')) return;
-  appts = appts.filter(x => x.id !== b.dataset.del); save(APPT_KEY, appts); renderAppts();
+  const id = b.dataset.del;
+  if (CLOUD_ON) { if (CLOUD && isAdmin) CLOUD.fs.deleteDoc(CLOUD.fs.doc(CLOUD.db, 'appointments', id)).catch(() => toast('Could not delete that appointment.')); return; }
+  appts = appts.filter(x => x.id !== id); save(APPT_KEY, appts); renderAppts();
 });
 
 /* ==========================================================
@@ -1168,67 +1350,70 @@ $('#exploreBtn').addEventListener('click', e => {                              /
 });
 
 /* ==========================================================
-   6. PUBLISH / EXPORT LIVE HTML & CLOUD SYNC WIRING
+   6. LIVE SYNC PANEL WIRING (owner login, setup guide, backup)
    ========================================================== */
-function updateSyncBanner() {
-  const cfg = getCloudCfg();
-  if (cfg.bin && cfg.key) {
-    $('#syncStatus').innerHTML = '<b>Cloud Sync Active:</b> Everything you add or edit automatically syncs online so anyone with your link sees it live!';
-  }
-}
-
-$('#exportHtmlBtn').addEventListener('click', () => {
-  const bundle = {};
-  ALL_KEYS.forEach(k => { const v = load(k, null); if (v !== null) bundle[k] = v; });
-  const cfg = getCloudCfg();
-  let html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-  html = html.replace(/\/\*__BAKED_DATA__\*\/[\s\S]*?\/\*__END_BAKED__\*\//, '/*__BAKED_DATA__*/' + JSON.stringify(bundle) + '/*__END_BAKED__*/');
-  html = html.replace(/\/\*__CLOUD_CFG__\*\/[\s\S]*?\/\*__END_CLOUD__\*\//, '/*__CLOUD_CFG__*/' + JSON.stringify(cfg) + '/*__END_CLOUD__*/');
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'index.html';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast('Downloaded index.html with all your uploads baked in!');
+$('#authBtn').addEventListener('click', async () => {
+  if (isAdmin) { if (CLOUD && CLOUD.au) { await CLOUD.au.signOut(CLOUD.auth); toast('Signed out.'); } return; }
+  if (!CLOUD || !CLOUD.au) return toast('Still connecting. Please try again in a moment.');
+  try {
+    const provider = new CLOUD.au.GoogleAuthProvider(); provider.setCustomParameters({ login_hint: OWNER_EMAIL });
+    await CLOUD.au.signInWithPopup(CLOUD.auth, provider);
+  } catch (e) { if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') toast('Sign-in failed (' + (e.code || 'error') + '). Check that your site domain is an authorized domain in Firebase.'); }
 });
+
+$('#backupBtn').addEventListener('click', () => {
+  const out = { exportedAt: new Date().toISOString() };
+  [...Object.keys(SYNC_MAP), CRED_KEY].forEach(k => { out[k] = load(k, null); });
+  if (appts.length) out[APPT_KEY] = appts;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }));
+  a.download = 'adrience-backup-' + todayStr() + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Backup downloaded.');
+});
+
+function parseFbCfg(txt) {
+  const o = {};
+  for (const m of txt.matchAll(/([A-Za-z]+)["']?\s*:\s*["']([^"']+)["']/g)) o[m[1]] = m[2];
+  return (o.apiKey && o.projectId) ? o : null;
+}
+const copyText = async t => { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } };
 
 $('#cloudSetupBtn').addEventListener('click', () => {
-  const cfg = getCloudCfg();
-  $('#jbBin').value = cfg.bin || '';
-  $('#jbKey').value = cfg.key || '';
+  $('#ruleEmail').textContent = OWNER_EMAIL;
+  $('#rulesBox').value = RULES();
+  $('#fbCfg').value = FB_CFG ? JSON.stringify(FB_CFG, null, 2) : '';
   $('#cloudModal').hidden = false;
 });
-$('#jbClose').addEventListener('click', () => { $('#cloudModal').hidden = true; });
-$('#jbClear').addEventListener('click', () => {
-  localStorage.removeItem('adrience_cloud_cfg');
-  $('#jbBin').value = ''; $('#jbKey').value = '';
-  toast('Cloud sync disconnected.');
+$('#fbClose').addEventListener('click', () => { $('#cloudModal').hidden = true; });
+$('#cloudModal').addEventListener('click', e => { if (e.target.id === 'cloudModal') $('#cloudModal').hidden = true; });
+$('#rulesCopy').addEventListener('click', async () => { toast(await copyText($('#rulesBox').value) ? 'Rules copied.' : 'Select the rules and copy them manually.'); });
+$('#fbCopy').addEventListener('click', async () => {
+  const cfg = parseFbCfg($('#fbCfg').value); if (!cfg) return toast('Paste your Firebase config first.');
+  toast(await copyText('const FIREBASE_CONFIG = ' + JSON.stringify(cfg) + ';') ? 'Copied. Paste it over the FIREBASE_CONFIG line in index.html.' : 'Could not copy automatically.');
 });
-$('#jbSave').addEventListener('click', async () => {
-  const bin = $('#jbBin').value.trim(), key = $('#jbKey').value.trim();
-  if (!bin || !key) return toast('Enter both the Bin ID and X-Master-Key.');
-  localStorage.setItem('adrience_cloud_cfg', JSON.stringify({ bin, key }));
-  $('#cloudModal').hidden = true;
-  updateSyncBanner();
-  await pullFromCloud();
-  pushToCloud();
-  toast('Connected! Your uploads now sync live for everyone.');
-  location.reload();
+$('#fbSave').addEventListener('click', () => {
+  const cfg = parseFbCfg($('#fbCfg').value);
+  if (!cfg) return toast('Could not find apiKey and projectId in what you pasted.');
+  localStorage.setItem('adrience_fb_cfg', JSON.stringify(cfg));
+  toast('Connecting…'); setTimeout(() => location.reload(), 400);
+});
+$('#fbClear').addEventListener('click', () => {
+  localStorage.removeItem('adrience_fb_cfg');
+  toast(FIREBASE_CONFIG ? 'Removed the test config. The config inside index.html stays active.' : 'Disconnected.');
+  setTimeout(() => location.reload(), 600);
 });
 
 /* ==========================================================
-   7. START UP
+   7. START UP: paint instantly from the saved copy, then go live
    ========================================================== */
-(async function init() {
-  updateSyncBanner();
-  const pulled = await pullFromCloud();
-  if (pulled) {
-    stories = load(STORY_KEY, null) || seedStories;
-    credText = load(CRED_KEY, '');
-    appts = load(APPT_KEY, []);
-  }
+(function init() {
   buildProjectPanels(); buildOrgs(); renderStories(); renderCred(); renderAppts(); route(); glass();
+  if (!CLOUD_ON) {                                  // local mode: you are the only user, show the editing tools
+    document.body.classList.add('local-mode'); setAdmin(true, null); return;
+  }
+  $('#authBtn').hidden = false; renderSync();
+  startCloud().catch(e => { console.warn('Cloud unavailable', e); syncState = 'error'; syncErr = 'load'; renderSync(); });
 })();
 </script>
 </body>
