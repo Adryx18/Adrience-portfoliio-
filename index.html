@@ -470,7 +470,19 @@ const PLACEHOLDER = 'logo.png';           // every media src defaults to this
    CLOUD SETTINGS  <<< the only two lines you ever edit >>>
    ========================================================== */
 const OWNER_EMAIL = 'jamesadrianfernandez18@gmail.com';   // the Google account allowed to edit the site
-const FIREBASE_CONFIG = null;                              // paste your Firebase config object here (see "Cloud Sync Setup" in the footer)
+
+import { initializeApp } from "firebase/app";
+  
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA5M0fPWnv8Gor4OvF4YpT4JRRN5Qn9mtw",
+  authDomain: "portfolio-4f373.firebaseapp.com",
+  projectId: "portfolio-4f373",
+  storageBucket: "portfolio-4f373.firebasestorage.app",
+  messagingSenderId: "780772008054",
+  appId: "1:780772008054:web:491e903fa33c2b69b37f57"
+  };
+
+const app = initializeApp(firebaseConfig);
 
 // legacy localStorage key -> Firestore collection (one document per item, so only changed items travel)
 const SYNC_MAP = {
