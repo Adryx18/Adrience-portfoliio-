@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a24c0">
+<meta name="color-scheme" content="light dark">
+<script>try{var _t=localStorage.getItem('adrience_theme');if(!_t)_t=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',_t)}catch(e){}</script>
 <title>Adrience | James Adrian Fernandez</title>
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
@@ -12,12 +15,12 @@
 /* ===================== DESIGN TOKENS ===================== */
 :root{
   --blue:#1a24c0; --deep:#0a14a0; --gold:#ffb000; --ink:#111; --paper:#fff;
-  --soft:#f8f8f8; --line:#bbb; --foot:#464646;
+  --soft:#f8f8f8; --line:#bbb; --foot:#464646; --tb:#1a24c0; --surface:#fff;
   --display:'Poppins',system-ui,sans-serif; --body:'Poppins',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--body);color:var(--blue);background:var(--paper);min-height:100vh;display:flex;flex-direction:column}
+body{font-family:var(--body);color:var(--tb);background:var(--paper);transition:background .3s,color .3s;min-height:100vh;display:flex;flex-direction:column}
 img,video{max-width:100%;display:block}
 button{font-family:inherit;cursor:pointer;border:0}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -26,10 +29,10 @@ button{font-family:inherit;cursor:pointer;border:0}
 
 /* ===================== NAVIGATION (sticky) ===================== */
 nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;
-  background:#fff;padding:.6rem 2rem;border-radius:0 0 28px 0;width:fit-content;max-width:100%;box-shadow:0 4px 14px rgba(0,0,0,.12);
+  background:var(--surface);padding:.6rem 2rem;border-radius:0 0 28px 0;width:fit-content;max-width:calc(100% - 64px);box-shadow:0 4px 14px rgba(0,0,0,.12);
   border:1px solid transparent;border-top:0;transition:background .35s,box-shadow .35s,backdrop-filter .35s,border-color .35s}
 .logo{height:32px;width:auto;min-width:90px}  /* Adrience logo image */
-nav a{color:var(--blue);text-decoration:none;font-weight:600;font-size:.9rem;padding:.3rem 0;border-bottom:3px solid transparent;transition:.25s}
+nav a{color:var(--tb);text-decoration:none;font-weight:600;font-size:.9rem;padding:.3rem 0;border-bottom:3px solid transparent;transition:.25s}
 nav a:hover{color:var(--gold)}
 nav a.active{border-color:var(--gold)}
 /* GLASS NAV: the class .scrolled is added by JS once the page is scrolled */
@@ -50,7 +53,7 @@ h2.gold{font-family:var(--body);font-weight:800;color:var(--gold);text-align:cen
 .btn.dark{background:#444}.btn.dark:hover{background:var(--blue)}
 .btn.sm{padding:.3rem .8rem;font-size:.75rem}
 [hidden]{display:none!important}
-.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1rem;transition:.25s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1rem;transition:.25s}
 .card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(26,36,192,.18)}
 .addbox:hover{transform:none;box-shadow:none}
 footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
@@ -62,14 +65,14 @@ footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
 .appt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;align-items:start}
 .appt h3{font-weight:700;margin-bottom:.8rem;font-size:1.1rem}
 .appt .card:hover{transform:none;box-shadow:none}
-.done{text-align:center;padding:1.2rem .5rem;color:var(--blue)}
+.done{text-align:center;padding:1.2rem .5rem;color:var(--tb)}
 .done .tick{width:54px;height:54px;border-radius:50%;background:var(--gold);color:#fff;font-size:1.8rem;display:grid;place-items:center;margin:0 auto .8rem}
 .done p{font-size:.85rem;line-height:1.6;margin-bottom:1rem}
 .alist{max-height:520px;overflow:auto;padding-right:.3rem}
 .acard{background:#fff;color:#222;border-radius:12px;padding:.9rem 1rem;margin-bottom:.8rem;font-size:.8rem;line-height:1.6;transition:.25s}
 .acard:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
-.acard .ah{display:flex;justify-content:space-between;align-items:center;gap:.5rem;color:var(--blue);font-size:.95rem;margin-bottom:.3rem}
-.acard b{color:var(--blue)}
+.acard .ah{display:flex;justify-content:space-between;align-items:center;gap:.5rem;color:var(--tb);font-size:.95rem;margin-bottom:.3rem}
+.acard b{color:var(--tb)}
 .pill{background:var(--gold);color:#fff;font-size:.65rem;font-weight:700;padding:.15rem .7rem;border-radius:20px}
 .noappt{color:#ccc;font-size:.85rem}
 
@@ -102,13 +105,13 @@ footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
 .form input[type=text],.form input[type=date],.form textarea{font-family:inherit;padding:.5rem;border:2px solid #555;border-radius:3px;font-size:.8rem;width:100%}
 .form textarea{min-height:90px;resize:vertical}
 .drop{border:2px dashed #999;border-radius:10px;min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;color:#888;font-size:1.1rem;cursor:pointer;transition:.25s;overflow:hidden;position:relative}
-.drop:hover,.drop.over{background:#eef0ff;border-color:var(--blue);color:var(--blue)}
+.drop:hover,.drop.over{background:#eef0ff;border-color:var(--blue);color:var(--tb)}
 .drop img{width:100%;height:110px;object-fit:cover}
 .empty{grid-column:1/-1;text-align:center;color:#778;font-size:.9rem}
 
 /* ===================== PROJECTS ===================== */
 .tabs{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.5rem}
-.tab{background:#fff;color:var(--blue);border:2px solid var(--blue);padding:.5rem 1.3rem;border-radius:30px;font-weight:700;font-size:.85rem;transition:.25s}
+.tab{background:#fff;color:var(--tb);border:2px solid var(--blue);padding:.5rem 1.3rem;border-radius:30px;font-weight:700;font-size:.85rem;transition:.25s}
 .tab:hover{background:var(--gold);border-color:var(--gold);color:#fff}
 .tab.active{background:var(--blue);color:#fff}
 .panel{display:none}.panel.active{display:block}
@@ -129,7 +132,7 @@ footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
 /* FULL-SCREEN STORY ARTICLE READER (Image 1) */
 .story-reader{max-width:780px;margin:1.5rem auto 2.5rem}
 .story-reader img.hero-shot{width:100%;max-height:520px;object-fit:contain;background:#f5f6fa;border-radius:16px;margin-bottom:1.5rem;box-shadow:0 8px 24px rgba(10,20,160,.12)}
-.story-reader h1{font-weight:800;font-size:clamp(1.6rem,4vw,2.4rem);color:var(--blue);line-height:1.2;margin-bottom:.3rem}
+.story-reader h1{font-weight:800;font-size:clamp(1.6rem,4vw,2.4rem);color:var(--tb);line-height:1.2;margin-bottom:.3rem}
 .story-reader .date{color:var(--gold);font-weight:700;font-size:1rem;margin-bottom:1.1rem}
 .story-reader .body-txt{color:#111;font-size:.95rem;line-height:1.8;text-align:justify;white-space:pre-line}
 .story-reader .back-row{display:flex;justify-content:flex-end;margin-top:2rem}
@@ -140,7 +143,7 @@ footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
 .org-card:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(26,36,192,.15)}
 .org-logo{width:128px;height:128px;flex-shrink:0;border-radius:10px;object-fit:cover;background:#eef2f7;border:1px solid #e0e4ec}
 .org-info{flex:1;min-width:0}
-.org-info h4{font-weight:800;font-size:1.15rem;color:var(--blue);margin:0 0 .35rem}
+.org-info h4{font-weight:800;font-size:1.15rem;color:var(--tb);margin:0 0 .35rem}
 .org-meta{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap;margin-bottom:.5rem}
 .org-pill{background:var(--gold);color:#fff;font-weight:700;font-size:.78rem;padding:.2rem .75rem;border-radius:6px;display:inline-block}
 .org-yr{color:var(--gold);font-weight:700;font-size:.85rem}
@@ -175,7 +178,7 @@ footer{background:var(--foot);color:#fff;padding:2rem 1rem 3rem}
 p.cap{color:#111;font-size:.78rem;line-height:1.55;margin:.5rem 0;text-align:justify}
 p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}   /* "Read full" collapsed state */
 .more{background:none;color:var(--gold);font-weight:700;font-size:.75rem;padding:0 0 .6rem;transition:.25s}
-.more:hover{color:var(--blue);text-decoration:underline}
+.more:hover{color:var(--tb);text-decoration:underline}
 .item .ctrl{margin-top:.6rem}
 .item iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:8px;background:#000;display:block}
 .ig-crop{position:relative;width:100%;overflow:hidden;border-radius:10px;background:#000}
@@ -196,7 +199,7 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 .vthumb .vbadge{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.72);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .6rem;border-radius:12px}
 /* Live preview & zoom/pan adjust box in forms */
 .prev-box{border:2px solid var(--blue);border-radius:12px;padding:.75rem;background:#f8f9ff;margin-top:.4rem}
-.prev-head{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.5rem}
+.prev-head{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;font-weight:700;color:var(--tb);margin-bottom:.5rem}
 .prev-stage{max-width:300px;margin:0 auto}
 .adj-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .8rem;margin-top:.65rem;background:#fff;padding:.6rem;border-radius:8px;border:1px solid #d5daf5}
 .adj-grid label{display:flex;flex-direction:column;gap:.15rem;font-size:.7rem;color:#333}
@@ -207,7 +210,7 @@ p.clamp{display:-webkit-box;-webkit-line-clamp:4;line-clamp:4;-webkit-box-orient
 .badge{display:inline-block;background:var(--blue);color:#fff;font-size:.65rem;font-weight:700;padding:.2rem .7rem;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
 .sub{color:var(--gold);font-weight:700;font-size:.8rem}
 .yr{font-size:.75rem;color:#667;margin-bottom:.3rem}
-.lnk{font-size:.75rem;font-weight:600;color:var(--blue)}
+.lnk{font-size:.75rem;font-weight:600;color:var(--tb)}
 .vph{aspect-ratio:16/9;background:#c9d0da;border-radius:8px;display:grid;place-items:center;font-size:.8rem;color:#556}
 .form input[type=time],.form input[type=tel]{font-family:inherit;padding:.5rem;border:2px solid #555;border-radius:3px;font-size:.8rem;width:100%}
 .form input[type=file]{font-size:.75rem}.form small{color:#667;font-size:.7rem}
@@ -248,20 +251,80 @@ body.local-mode .setup-only,body.is-admin .setup-only{display:inline-block!impor
 /* MODAL (cloud sync setup) */
 .modal-bg{position:fixed;inset:0;background:rgba(10,15,60,.65);z-index:120;display:grid;place-items:center;padding:1rem}
 .modal-card{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:1.4rem;box-shadow:0 16px 40px rgba(0,0,0,.35);color:#111;max-height:90vh;overflow:auto}
-.modal-card h3{color:var(--blue);font-size:1.2rem;margin-bottom:.4rem}
+.modal-card h3{color:var(--tb);font-size:1.2rem;margin-bottom:.4rem}
 .modal-card p{font-size:.8rem;line-height:1.55;margin-bottom:.75rem;color:#333}
 .modal-card textarea{width:100%;padding:.5rem;border:1.5px solid #666;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.7rem;line-height:1.45;margin-bottom:.6rem;resize:vertical}
-.modal-card label{display:block;font-size:.75rem;font-weight:700;color:var(--blue);margin-bottom:.2rem}
+.modal-card label{display:block;font-size:.75rem;font-weight:700;color:var(--tb);margin-bottom:.2rem}
 .step-box{background:#f5f7ff;border:1px solid #d0d8fa;border-radius:10px;padding:.75rem;font-size:.78rem;line-height:1.55;margin-bottom:.8rem}
 
 /* Toast confirmation */
 #toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,80px);background:var(--blue);color:#fff;padding:.7rem 1.4rem;border-radius:30px;font-size:.85rem;font-weight:600;transition:.3s;z-index:99}
 #toast.show{transform:translate(-50%,0)}
+/* ===================== FORM FIXES (iPad / iPhone / all browsers) ===================== */
+.form input,.form textarea,.org-row input,.org-row textarea{min-width:0;max-width:100%}
+.form input[type=date],.form input[type=time]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;min-height:2.7rem;background:#fff;color:#111;text-align:left;line-height:1.2}
+.form input::-webkit-date-and-time-value{text-align:left;min-height:1.2em;margin:0}
+.form input::-webkit-datetime-edit{padding:0}
+.form button{min-height:2.7rem}
+@media (pointer:coarse){
+  .form input,.form textarea,.org-row input,.org-row textarea,.credbox textarea,.modal-card textarea{font-size:16px}  /* stops iOS zooming into fields */
+  nav a{padding:.55rem 0}
+  .btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
+  .btn.sm{min-height:36px}
+  .tab{min-height:42px}
+}
+img,video,iframe{max-width:100%}
+.alist,.modal-card{overscroll-behavior:contain}
+
+/* ===================== LIGHT / DARK TOGGLE (top right) ===================== */
+.theme-toggle{position:fixed;top:calc(.55rem + env(safe-area-inset-top,0px));right:calc(1rem + env(safe-area-inset-right,0px));z-index:70;width:44px;height:44px;border-radius:50%;
+  background:#fff;color:var(--blue);display:grid;place-items:center;border:1px solid rgba(0,0,0,.1);box-shadow:0 4px 14px rgba(0,0,0,.22);transition:transform .25s,background .3s,color .3s}
+.theme-toggle:hover{transform:scale(1.08)}
+.theme-toggle svg{width:22px;height:22px;grid-area:1/1}
+.theme-toggle .sun{display:none}
+html[data-theme=dark] .theme-toggle{background:#232738;color:var(--gold);border-color:rgba(255,255,255,.18)}
+html[data-theme=dark] .theme-toggle .sun{display:block}
+html[data-theme=dark] .theme-toggle .moon{display:none}
+
+/* ===================== DARK MODE ===================== */
+html[data-theme=dark]{color-scheme:dark;--paper:#0e1016;--soft:#151822;--line:#363c52;--foot:#12141b;--tb:#a3acff;--surface:#1a1d29}
+html[data-theme=dark] nav.scrolled{background:rgba(18,20,30,.55);border-color:rgba(255,255,255,.14)}
+html[data-theme=dark] nav{box-shadow:0 4px 14px rgba(0,0,0,.5)}
+html[data-theme=dark] .tab{background:var(--surface)}
+html[data-theme=dark] .tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+html[data-theme=dark] .btn.dark,html[data-theme=dark] .sync .btn.dark{background:#3a4058}
+html[data-theme=dark] .btn.dark:hover,html[data-theme=dark] .sync .btn.dark:hover{background:var(--blue)}
+html[data-theme=dark] .org-card,html[data-theme=dark] .org-form-card,html[data-theme=dark] .acard,html[data-theme=dark] .adj-grid,html[data-theme=dark] .modal-card{background:var(--surface);border-color:var(--line)}
+html[data-theme=dark] .story p,html[data-theme=dark] p.cap,html[data-theme=dark] .story-reader .body-txt,html[data-theme=dark] .org-desc,html[data-theme=dark] .acard,
+html[data-theme=dark] .modal-card,html[data-theme=dark] .modal-card p,html[data-theme=dark] .form label,html[data-theme=dark] .org-row label,html[data-theme=dark] .adj-grid label{color:#dfe2ee}
+html[data-theme=dark] .form input,html[data-theme=dark] .form textarea,html[data-theme=dark] .org-row input,html[data-theme=dark] .org-row textarea,
+html[data-theme=dark] .credbox textarea,html[data-theme=dark] .modal-card textarea,html[data-theme=dark] .form input[type=date],html[data-theme=dark] .form input[type=time]{background:#0f111a;color:#eceef7;border-color:#6d7490}
+html[data-theme=dark] ::placeholder{color:#8a90a8}
+html[data-theme=dark] .drop{border-color:#6d7490;color:#a9aec4}
+html[data-theme=dark] .drop:hover,html[data-theme=dark] .drop.over{background:#222750;color:#fff;border-color:var(--tb)}
+html[data-theme=dark] .step-box,html[data-theme=dark] .prev-box,html[data-theme=dark] .prev-empty{background:#1f2335;border-color:#3b4263;color:#dfe2ee}
+html[data-theme=dark] .empty,html[data-theme=dark] .yr,html[data-theme=dark] .form small,html[data-theme=dark] .prev-note,html[data-theme=dark] .credbox .view.ph{color:#9aa1bb}
+html[data-theme=dark] .story img,html[data-theme=dark] .cards3 img,html[data-theme=dark] .about img,html[data-theme=dark] .item img,html[data-theme=dark] .item video,html[data-theme=dark] .org-logo,
+html[data-theme=dark] .des-media,html[data-theme=dark] .ig-crop.des,html[data-theme=dark] .vph,html[data-theme=dark] .story-reader img.hero-shot{background:#262a3a;border-color:#363c52}
+html[data-theme=dark] .vph{color:#9aa1bb}
+html[data-theme=dark] .card:hover{box-shadow:0 10px 24px rgba(0,0,0,.55)}
+html[data-theme=dark] .org-card:hover,html[data-theme=dark] .item:hover{box-shadow:0 10px 22px rgba(0,0,0,.55)}
+html[data-theme=dark] .logo,html[data-theme=dark] .overview .big,html[data-theme=dark] .about h2 img{filter:brightness(2.4) saturate(.85)}
+html[data-theme=dark] .hero,html[data-theme=dark] .banner{background:linear-gradient(#141a8c,#050a52)}
+html[data-theme=dark] #toast{background:#2b3170}
+html[data-theme=dark] .done{color:var(--tb)}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 
 <body>
+
+<!-- ============ LIGHT / DARK TOGGLE (top right) ============ -->
+<button class="theme-toggle" id="themeBtn" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Light / dark mode">
+  <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
 
 <!-- ============ STICKY NAV ============ -->
 <nav>
@@ -471,8 +534,6 @@ const PLACEHOLDER = 'logo.png';           // every media src defaults to this
    ========================================================== */
 const OWNER_EMAIL = 'jamesadrianfernandez18@gmail.com';   // the Google account allowed to edit the site
 
-import { initializeApp } from "firebase/app";
-  
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyA5M0fPWnv8Gor4OvF4YpT4JRRN5Qn9mtw",
   authDomain: "portfolio-4f373.firebaseapp.com",
@@ -480,9 +541,7 @@ const FIREBASE_CONFIG = {
   storageBucket: "portfolio-4f373.firebasestorage.app",
   messagingSenderId: "780772008054",
   appId: "1:780772008054:web:491e903fa33c2b69b37f57"
-  };
-
-const app = initializeApp(firebaseConfig);
+};
 
 // legacy localStorage key -> Firestore collection (one document per item, so only changed items travel)
 const SYNC_MAP = {
@@ -753,7 +812,7 @@ function route() {
   const page = ['home', 'stories', 'story-view', 'projects', 'about'].includes(name) ? name : 'home';
   const navKey = page === 'story-view' ? 'stories' : page;
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
-  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.dataset.page === navKey));
+  document.querySelectorAll('nav a').forEach(a => { const on = a.dataset.page === navKey; a.classList.toggle('active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   window.scrollTo(0, 0);
 }
 window.addEventListener('hashchange', route);
@@ -961,8 +1020,8 @@ function makeManager({ host, key, noun, fields, card, check, cls = '', grid = 'p
     const L = `<label>${f.label}</label>`;
     if (f.type === 'image') return `${L}<div class="drop" data-f="${f.k}" tabindex="0">Add/Drop<br>Image here</div><input type="file" accept="image/*" hidden data-in="${f.k}">`;
     if (f.type === 'file') return `${L}<input type="file" data-f="${f.k}" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"><small data-fn="${f.k}"></small>`;
-    if (f.type === 'textarea') return `${L}<textarea data-f="${f.k}" placeholder="${f.ph || ''}"></textarea>`;
-    return `${L}<input type="text" data-f="${f.k}" placeholder="${f.ph || ''}">`;
+    if (f.type === 'textarea') return `${L}<textarea data-f="${f.k}" placeholder="${f.ph || ''}" aria-label="${f.label}"></textarea>`;
+    return `${L}<input type="text" data-f="${f.k}" placeholder="${f.ph || ''}" aria-label="${f.label}">`;
   }).join('');
 
   if (preview) {
@@ -1415,6 +1474,19 @@ $('#fbClear').addEventListener('click', () => {
   toast(FIREBASE_CONFIG ? 'Removed the test config. The config inside index.html stays active.' : 'Disconnected.');
   setTimeout(() => location.reload(), 600);
 });
+
+/* ==========================================================
+   6b. LIGHT / DARK MODE (remembered per visitor)
+   ========================================================== */
+function applyTheme(t, remember) {
+  document.documentElement.setAttribute('data-theme', t);
+  const b = $('#themeBtn'); b.setAttribute('aria-pressed', String(t === 'dark')); b.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', t === 'dark' ? '#0e1016' : '#1a24c0');
+  if (remember) { try { localStorage.setItem('adrience_theme', t); } catch (e) {} }
+}
+$('#themeBtn').addEventListener('click', () => applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true));
+applyTheme(document.documentElement.getAttribute('data-theme') || 'light', false);
+try { matchMedia('(prefers-color-scheme:dark)').addEventListener('change', e => { if (!localStorage.getItem('adrience_theme')) applyTheme(e.matches ? 'dark' : 'light', false); }); } catch (e) {}
 
 /* ==========================================================
    7. START UP: paint instantly from the saved copy, then go live
